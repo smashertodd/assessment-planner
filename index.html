@@ -201,6 +201,23 @@ body.pe-mode{font-size:1.05em}body.dyslexia-mode{letter-spacing:.04em;word-spaci
 <section id="customise-section" style="display:none">
 <button class="drawer-toggle" id="drawerToggle" type="button">⚙ Customise your plan</button>
 <div class="drawer-body" id="drawerBody">
+<h3>Guidance mode</h3>
+<div class="mode-grid" id="drawerModeGrid">
+<div class="mode-card sel" data-val="Essentials" tabindex="0" role="radio">
+<div class="mlbl">Essentials</div>
+<div class="mdesc">Just the key steps. Minimal, clean.</div>
+</div>
+<div class="mode-card" data-val="Guided" tabindex="0" role="radio">
+<div class="mlbl">Guided</div>
+<div class="mdesc">Step-by-step with tips and sources.</div>
+</div>
+<div class="mode-card" data-val="Coach" tabindex="0" role="radio">
+<div class="mlbl">Coach</div>
+<div class="mdesc">In-depth prompts for critical thinking.</div>
+</div>
+</div>
+<p class="muted" style="margin:.25rem 0 .5rem">Changing mode will take effect when you click <strong>Rebuild plan with changes</strong> below.</p>
+<hr aria-hidden="true">
 <h3>Instructions / context</h3>
 <textarea id="context" placeholder="Paste key instructions or assignment brief here"></textarea>
 <hr aria-hidden="true">
@@ -1016,6 +1033,11 @@ function showPlannerView(){
   U.id('setup-section').style.display='none';
   U.id('customise-section').style.display='';
   U.id('planner-section').style.display='';
+  /* Sync drawer mode cards with current mode */
+  var currentMode=U.id('modeVal').value;
+  document.querySelectorAll('.mode-card').forEach(function(c){
+    c.classList.toggle('sel',c.dataset.val===currentMode);
+  });
 }
 /* ==============================
    GENERATE PLAN
@@ -1274,13 +1296,19 @@ document.addEventListener('DOMContentLoaded',function(){
       el.classList.add('sel');U.id('atype').value=el.dataset.val;
     });
   });
-  /* Mode cards */
-  document.querySelectorAll('.mode-card').forEach(function(el){
+/* Mode cards — sync both wizard and drawer grids */
+function wireModCards(container){
+  container.querySelectorAll('.mode-card').forEach(function(el){
     el.addEventListener('click',function(){
+      /* Update all mode cards everywhere */
       document.querySelectorAll('.mode-card').forEach(function(c){c.classList.remove('sel')});
-      el.classList.add('sel');U.id('modeVal').value=el.dataset.val;
+      document.querySelectorAll('.mode-card[data-val="'+el.dataset.val+'"]').forEach(function(c){c.classList.add('sel')});
+      U.id('modeVal').value=el.dataset.val;
     });
   });
+}
+wireModCards(U.id('modeGrid'));
+wireModCards(U.id('drawerModeGrid'));
   /* Step navigation */
   U.on('next1','click',function(){
     if(!U.id('title').value.trim()){U.status('step1Status','Please enter a title.',true);return}
