@@ -16,7 +16,6 @@
             --bg-color: #0f172a; --surface: #1e293b; --text-main: #f8fafc;
             --text-muted: #94a3b8; --border: #334155; --accent: #60a5fa;
         }
-
         /* Base Typography uses System Fonts for performance/privacy */
         html { font-size: 16px; transition: font-size 0.2s ease; }
         body {
@@ -26,18 +25,15 @@
             transition: background-color 0.3s, color 0.3s;
         }
         .container { max-width: 800px; margin: 0 auto; }
-        
         /* Header & Top Controls */
         .header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
         h1 { font-size: 2rem; margin: 0; }
         .top-controls { display: flex; gap: 8px; flex-wrap: wrap; }
-        
         .bento-box {
             background: var(--surface); border: 1px solid var(--border);
             border-radius: var(--radius); padding: 24px; margin-bottom: 24px;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
         }
-
         textarea {
             width: 100%; box-sizing: border-box; height: 120px; padding: 16px;
             background: var(--bg-color); color: var(--text-main);
@@ -45,7 +41,6 @@
             font-family: monospace; resize: vertical; margin-bottom: 16px; font-size: 1rem;
         }
         textarea:focus { border-color: var(--accent); outline: none; }
-        
         /* Buttons */
         button {
             background: var(--surface); color: var(--text-main);
@@ -59,7 +54,6 @@
         button.small-btn { padding: 4px 10px; font-size: 0.85rem; border-radius: 6px; }
         button.undo-btn { background: transparent; border: 1px solid var(--text-muted); color: var(--text-muted); }
         button.undo-btn:hover { color: var(--text-main); border-color: var(--text-main); }
-
         /* Settings Grid & Toggles */
         .settings-grid {
             display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
@@ -70,7 +64,6 @@
             padding: 12px 0; border-bottom: 1px solid var(--border);
         }
         .setting-row:last-child { border-bottom: none; }
-        
         .setting-row input[type="checkbox"] {
             appearance: none; -webkit-appearance: none; width: 44px; height: 24px; background: var(--border);
             border-radius: 24px; position: relative; cursor: pointer; outline: none; transition: background 0.3s ease;
@@ -81,7 +74,6 @@
         }
         .setting-row input[type="checkbox"]:checked { background: var(--success); }
         .setting-row input[type="checkbox"]:checked::after { transform: translateX(20px); }
-
         .setting-row select {
             appearance: none; -webkit-appearance: none; width: 220px; padding: 10px 36px 10px 16px;
             background-color: var(--bg-color); border: 2px solid var(--border); border-radius: 10px;
@@ -89,20 +81,17 @@
             background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23a0aec0%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E");
             background-repeat: no-repeat; background-position: right 12px center; background-size: 16px;
         }
-
         /* Library Styles */
         .library-item {
             display: flex; justify-content: space-between; align-items: center;
             background: var(--bg-color); padding: 10px 16px; border-radius: 8px; margin-bottom: 8px;
             border: 1px solid var(--border);
         }
-
         /* Progress Bar */
         progress { width: 100%; height: 12px; border-radius: 6px; margin-top: 12px; border: none; background: var(--border); }
         progress::-webkit-progress-bar { background-color: var(--border); border-radius: 6px; }
         progress::-webkit-progress-value { background-color: var(--success); border-radius: 6px; transition: width 0.4s ease; }
         progress::-moz-progress-bar { background-color: var(--success); border-radius: 6px; transition: width 0.4s ease; }
-
         /* Tasks & Layout */
         .stage-title { font-size: 1.2rem; margin: 24px 0 12px; font-weight: 700; color: var(--accent); }
         .task-card {
@@ -113,23 +102,19 @@
         .task-card.completed { opacity: 0.6; background: transparent; border-style: dashed; }
         .task-info { flex: 1; }
         .task-name { font-weight: 600; margin-bottom: 4px; display: block; font-size: 1.05rem; }
-        
-        .task-hint-box { 
-            background: var(--surface); padding: 12px; border-radius: 8px; 
-            margin-top: 10px; border-left: 4px solid var(--accent); 
+        .task-hint-box {
+            background: var(--surface); padding: 12px; border-radius: 8px;
+            margin-top: 10px; border-left: 4px solid var(--accent);
             display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;
         }
         .task-hint-text { font-size: 0.95rem; color: var(--text-muted); flex: 1; }
-        
         .task-due { font-size: 0.85rem; font-weight: 600; padding: 4px 8px; border-radius: 4px; background: var(--border); }
-        
         .focus-complete-btn {
             width: 100%; padding: 16px; font-size: 1.1rem; background: var(--success); color: white; border: none;
             border-radius: 12px; cursor: pointer; font-weight: bold; margin-top: 16px;
             box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2); transition: transform 0.1s; justify-content: center;
         }
         .focus-complete-btn:active { transform: scale(0.98); }
-
         .ai-float-btn {
             position: fixed; bottom: 30px; right: 30px; background: linear-gradient(135deg, #6366f1, #a855f7); color: white;
             padding: 16px 24px; border-radius: 30px; text-decoration: none; font-weight: 700;
@@ -142,7 +127,6 @@
     </style>
 </head>
 <body>
-
 <div class="container">
     <div class="header-bar">
         <h1>Assessment Planner</h1>
@@ -154,7 +138,6 @@
             <button onclick="App.toggleSettings()">⚙️ Options & Tools</button>
         </div>
     </div>
-
     <!-- INGESTION BOX -->
     <div class="bento-box" id="ingest-box">
         <p style="color: var(--text-muted); margin-top: 0;">Paste your AI plan below to get started.</p>
@@ -162,11 +145,9 @@
         <textarea id="json-input" placeholder="Paste your generated ```json code block here..." aria-label="AI Data Input"></textarea>
         <button class="primary" onclick="App.loadPlan()">Load Plan</button>
     </div>
-
     <!-- SETTINGS PANEL -->
     <div class="bento-box hidden" id="settings-panel">
         <h3 style="margin-top: 0;">Options & Tools</h3>
-        
         <!-- LIBRARY SECTION -->
         <div class="setting-row" style="flex-direction: column; align-items: flex-start; background: var(--bg-color); padding: 16px; border-radius: 12px; margin-bottom: 16px; border: 1px solid var(--border);">
             <div style="display: flex; justify-content: space-between; width: 100%; align-items: center; margin-bottom: 12px;">
@@ -175,12 +156,10 @@
             </div>
             <div id="library-list" style="width: 100%;"></div>
         </div>
-
         <div class="setting-row">
             <label for="toggle-focus"><strong>Focus Mode</strong> (One task at a time)</label>
             <input type="checkbox" id="toggle-focus" onchange="App.render()" checked>
         </div>
-        
         <div class="setting-row">
             <label for="theme-select">App Theme</label>
             <select id="theme-select" onchange="App.setTheme(this.value)">
@@ -188,7 +167,6 @@
                 <option value="dark" selected>Dark Mode</option>
             </select>
         </div>
-
         <div class="setting-row">
             <label for="block-length">Study Block Length (For Calendar)</label>
             <select id="block-length">
@@ -197,7 +175,6 @@
                 <option value="60">60 mins (Deep Work)</option>
             </select>
         </div>
-
         <div class="settings-grid">
             <button onclick="App.exportICS()">📅 Export Time Blocks</button>
             <button onclick="App.reflowDates()">🔄 Reflow Dates to Today</button>
@@ -205,13 +182,10 @@
             <button onclick="App.clearApp()" style="color: var(--danger); border-color: var(--danger);">🗑️ Clear App</button>
         </div>
     </div>
-
     <!-- MAIN APP CONTENT -->
     <div id="app-content"></div>
 </div>
-
 <!--<a href="https://m365.cloud.microsoft/chat/?titleId=T_86772f38-9eb2-5a1b-9846-a28f5dee5243&source=embedded-builder" target="_blank" class="ai-float-btn">✨ Ask AI Coach</a>-->
-
 <script>
 var U = {
     id: function(s) { return document.getElementById(s) },
@@ -237,18 +211,14 @@ var U = {
     icsDate: function(d) { return d.getFullYear() + String(d.getMonth()+1).padStart(2,'0') + String(d.getDate()).padStart(2,'0') + 'T090000' },
     uuid: function() { return 't_' + Math.random().toString(36).substr(2, 9) }
 };
-
 var App = {
     data: null,
     zoomLevel: 0,
-    
     init: function() {
-        this.setTheme('dark'); 
-        
+        this.setTheme('dark');
         // Restore zoom preference
         var savedZoom = localStorage.getItem('plannerZoom');
         if (savedZoom) { this.zoomLevel = parseInt(savedZoom, 10); this.applyTextSize(); }
-
         var saved = localStorage.getItem('plannerData');
         if (saved) {
             this.data = JSON.parse(saved);
@@ -257,7 +227,6 @@ var App = {
         }
         this.renderLibrary();
     },
-
     // NEW FUNCTION: Brings back the paste box so they can load a new plan
     newPlan: function() {
         if (this.data) {
@@ -272,7 +241,6 @@ var App = {
             this.toggleSettings(); // Close settings panel if it was open
         }
     },
-
     // --- ACCESSIBILITY FUNCTIONS ---
     changeTextSize: function(delta) {
         this.zoomLevel += delta;
@@ -284,26 +252,42 @@ var App = {
     applyTextSize: function() {
         document.documentElement.style.fontSize = (16 + (this.zoomLevel * 2)) + 'px';
     },
-
     readHint: function(taskId) {
         if (!window.speechSynthesis) return alert("Text-to-speech not supported in this browser.");
         var task = null;
         this.data.stages.forEach(function(s) { s.tasks.forEach(function(t) { if (t.id === taskId) task = t; }); });
         if (!task || !task.hint) return;
-
         window.speechSynthesis.cancel(); // Stop any current speech
         var utterance = new SpeechSynthesisUtterance(task.hint);
         utterance.lang = 'en-NZ';
         window.speechSynthesis.speak(utterance);
     },
-
     setTheme: function(theme) { document.documentElement.setAttribute('data-theme', theme); },
     toggleSettings: function() { U.id('settings-panel').classList.toggle('hidden'); },
-
+    
     cleanAndParseAI: function(raw) {
+        // 1. Try to parse it normally first
         try { return JSON.parse(raw); } catch(e) {}
-        var clean = raw.replace(/```json/gi, '').replace(/```/g, '').trim();
-        clean = clean.replace(/,(\s*[\]}])/g, '$1'); 
+        
+        var clean = raw;
+        
+        // 2. Look for the Markdown code blocks first
+        var match = clean.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
+        if (match && match[1]) { 
+            clean = match[1]; 
+        } else {
+            // 3. If no code blocks, dig out everything between the first { and last }
+            var first = clean.indexOf('{');
+            var last = clean.lastIndexOf('}');
+            if (first !== -1 && last !== -1 && last > first) { 
+                clean = clean.substring(first, last + 1); 
+            }
+        }
+        
+        // 4. Strip pesky trailing commas the AI sometimes leaves behind
+        clean = clean.replace(/,(\s*[\]}])/g, '$1').trim();
+        
+        // 5. Final parse
         try { return JSON.parse(clean); } catch(e) { return null; }
     },
 
@@ -322,9 +306,7 @@ var App = {
         U.id('status-msg').classList.add('hidden');
         this.render();
     },
-
     save: function() { localStorage.setItem('plannerData', JSON.stringify(this.data)); },
-
     clearApp: function() {
         if(confirm("This will clear your screen (Saved plans in your library won't be deleted). Proceed?")) {
             localStorage.removeItem('plannerData');
@@ -334,10 +316,8 @@ var App = {
             U.id('settings-panel').classList.add('hidden');
         }
     },
-
     // --- LIBRARY FUNCTIONS ---
     getLibrary: function() { return JSON.parse(localStorage.getItem('plannerLibrary') || '[]'); },
-    
     saveToLibrary: function() {
         if (!this.data) return alert("No active plan to save!");
         var lib = this.getLibrary();
@@ -349,7 +329,6 @@ var App = {
         this.renderLibrary();
         alert("Plan saved to library!");
     },
-
     loadFromLibrary: function(id) {
         var lib = this.getLibrary();
         var plan = lib.find(function(p) { return p.id === id; });
@@ -361,14 +340,12 @@ var App = {
             alert("Plan loaded successfully!");
         }
     },
-
     deleteFromLibrary: function(id) {
         if(!confirm("Delete this saved plan forever?")) return;
         var lib = this.getLibrary().filter(function(p) { return p.id !== id; });
         localStorage.setItem('plannerLibrary', JSON.stringify(lib));
         this.renderLibrary();
     },
-
     renderLibrary: function() {
         var lib = this.getLibrary();
         var html = '';
@@ -387,7 +364,6 @@ var App = {
         }
         U.id('library-list').innerHTML = html;
     },
-
     // --- TASK COMPLETION & UNDO ---
     completeTask: function(taskId) {
         if (!this.data) return;
@@ -399,21 +375,17 @@ var App = {
         this.data.stages.forEach(function(s) { s.tasks.forEach(function(t) { if (t.id === taskId) t.done = false; }); });
         this.save(); this.render();
     },
-
     render: function() {
         if (!this.data) return;
-        
         // Calculate overall progress
         var total = 0, doneCount = 0;
         this.data.stages.forEach(function(s) { s.tasks.forEach(function(t) { total++; if(t.done) doneCount++; }); });
-
         var html = '<div class="bento-box" style="border-left: 4px solid var(--accent)">';
         html += '<h2 style="margin-top:0;">' + U.escape(this.data.assignment) + '</h2>';
         html += '<p style="margin-bottom:8px;"><strong>Due:</strong> ' + U.niceD(U.parseD(this.data.dueDate)) + '</p>';
         html += '<div style="display:flex; justify-content:space-between; font-size:0.85rem; color:var(--text-muted);"><span>Progress</span><span>' + doneCount + ' / ' + total + ' Tasks</span></div>';
         html += '<progress value="' + doneCount + '" max="' + total + '"></progress>';
         html += '</div>';
-
         if (U.id('toggle-focus').checked) {
             var nextTask = null, currentStage = null;
             for (var i=0; i<this.data.stages.length; i++) {
@@ -423,17 +395,14 @@ var App = {
                 }
                 if (nextTask) break;
             }
-
             if (nextTask) {
                 html += '<h3 style="text-align:center; color: var(--text-muted);">Current Focus Area</h3>';
                 html += '<div class="stage-title" style="text-align:center;">' + U.escape(currentStage.title) + '</div>';
                 html += '<div class="task-card" style="flex-direction: column; padding: 32px; border: 2px solid var(--accent);">';
-                
                 html += '<div style="text-align:center; width: 100%;">';
                 html += '<span class="task-due" style="margin-bottom: 12px; display:inline-block;">Aim to finish by: ' + U.niceD(U.parseD(nextTask.due)) + '</span>';
                 html += '<span class="task-name" style="font-size: 1.5rem; margin-bottom: 16px;">' + U.escape(nextTask.name) + '</span>';
                 html += '</div>';
-
                 if (nextTask.hint) {
                     html += '<div class="task-hint-box" style="width: 100%; box-sizing: border-box;">';
                     html += '<div class="task-hint-text">💡 ' + U.escape(nextTask.hint) + '</div>';
@@ -450,15 +419,12 @@ var App = {
                 html += '<div class="stage-title">' + U.escape(s.title) + '</div>';
                 s.tasks.forEach(function(t) {
                     var cClass = t.done ? ' task-card completed' : ' task-card';
-                    
-                    var btnHtml = t.done 
-                        ? '<button class="small-btn undo-btn" onclick="App.uncompleteTask(\'' + t.id + '\')" aria-label="Undo task completion">↩️ Undo</button>' 
+                    var btnHtml = t.done
+                        ? '<button class="small-btn undo-btn" onclick="App.uncompleteTask(\'' + t.id + '\')" aria-label="Undo task completion">↩️ Undo</button>'
                         : '<button class="small-btn primary" onclick="App.completeTask(\'' + t.id + '\')">Done</button>';
-
                     html += '<div class="' + cClass + '"><div style="margin-top: 4px;">' + btnHtml + '</div><div class="task-info">';
                     html += '<span class="task-name">' + U.escape(t.name) + '</span>';
                     html += '<span class="task-due">' + U.niceD(U.parseD(t.due)) + '</span>';
-                    
                     if (t.hint) {
                         html += '<div class="task-hint-box">';
                         html += '<div class="task-hint-text">💡 ' + U.escape(t.hint) + '</div>';
@@ -471,7 +437,6 @@ var App = {
         }
         U.id('app-content').innerHTML = html;
     },
-
     reflowDates: function() {
         if(!this.data) return;
         var todayStr = U.fmtD(new Date()), todayObj = new Date(); todayObj.setHours(0,0,0,0);
@@ -480,14 +445,13 @@ var App = {
         });});
         this.save(); this.render(); alert("Past dates caught up to today.");
     },
-
     exportICS: function() {
         if(!this.data) return;
         var mins = parseInt(U.id('block-length').value, 10);
         var ics = ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Neuro-Inclusive Planner//EN"];
         this.data.stages.forEach(function(s) { s.tasks.forEach(function(t) {
             if(!t.done) {
-                var d = U.parseD(t.due), endD = new Date(d.getTime() + mins*60000); 
+                var d = U.parseD(t.due), endD = new Date(d.getTime() + mins*60000);
                 // Timezone Z is removed, U.escapeICS ensures valid format
                 ics.push(
                     "BEGIN:VEVENT",
@@ -504,7 +468,6 @@ var App = {
         var link = document.createElement('a'); link.href = window.URL.createObjectURL(blob); link.download = "study_plan.ics"; link.click();
     }
 };
-
 window.onload = function() { App.init(); };
 </script>
 </body>
