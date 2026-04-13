@@ -3,472 +3,420 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Removed Google Fonts for 100% offline privacy and strict security -->
-    <title>Assessment Planner</title>
+    <title>Assessment Planner 4.3</title>
     <style>
-        /* CORE THEMES & VARIABLES */
-        :root {
-            --bg-color: #f8fafc; --surface: #ffffff; --text-main: #0f172a;
-            --text-muted: #64748b; --border: #e2e8f0; --accent: #3b82f6;
-            --success: #10b981; --danger: #ef4444; --radius: 16px;
-        }
-        [data-theme="dark"] {
-            --bg-color: #0f172a; --surface: #1e293b; --text-main: #f8fafc;
-            --text-muted: #94a3b8; --border: #334155; --accent: #60a5fa;
-        }
-        /* Base Typography uses System Fonts for performance/privacy */
-        html { font-size: 16px; transition: font-size 0.2s ease; }
-        body {
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color); color: var(--text-main);
-            margin: 0; padding: 20px; line-height: 1.6;
-            transition: background-color 0.3s, color 0.3s;
-        }
-        .container { max-width: 800px; margin: 0 auto; }
-        /* Header & Top Controls */
+        /* THEMES */
+        :root { --bg-color: #f8fafc; --surface: #ffffff; --text-main: #0f172a; --text-muted: #64748b; --border: #e2e8f0; --accent: #3b82f6; --success: #10b981; --danger: #ef4444; }
+        [data-theme="dark"] { --bg-color: #0f172a; --surface: #1e293b; --text-main: #f8fafc; --text-muted: #94a3b8; --border: #334155; --accent: #60a5fa; }
+        [data-theme="hc"] { --bg-color: #000000; --surface: #000000; --text-main: #ffffff; --text-muted: #cccccc; --border: #ffffff; --accent: #ffff00; --success: #00ff00; --danger: #ff0000; }
+        
+        body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg-color); color: var(--text-main); margin: 0; padding: 20px; line-height: 1.6; transition: 0.2s; }
+        .container { max-width: 1000px; margin: 0 auto; }
+        .bento-box { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        [data-theme="hc"] .bento-box { border: 2px solid var(--border); box-shadow: none; }
+        
         .header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
-        h1 { font-size: 2rem; margin: 0; }
-        .top-controls { display: flex; gap: 8px; flex-wrap: wrap; }
-        .bento-box {
-            background: var(--surface); border: 1px solid var(--border);
-            border-radius: var(--radius); padding: 24px; margin-bottom: 24px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-        }
-        textarea {
-            width: 100%; box-sizing: border-box; height: 120px; padding: 16px;
-            background: var(--bg-color); color: var(--text-main);
-            border: 2px dashed var(--border); border-radius: 12px;
-            font-family: monospace; resize: vertical; margin-bottom: 16px; font-size: 1rem;
-        }
-        textarea:focus { border-color: var(--accent); outline: none; }
-        /* Buttons */
-        button {
-            background: var(--surface); color: var(--text-main);
-            border: 1px solid var(--border); border-radius: 8px;
-            padding: 10px 16px; font-weight: 600; font-family: inherit; font-size: 0.95rem;
-            cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px;
-        }
-        button:hover { border-color: var(--accent); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        button.primary { background: var(--accent); color: white; border: none; }
-        button.primary:hover { background: #2563eb; }
-        button.small-btn { padding: 4px 10px; font-size: 0.85rem; border-radius: 6px; }
-        button.undo-btn { background: transparent; border: 1px solid var(--text-muted); color: var(--text-muted); }
-        button.undo-btn:hover { color: var(--text-main); border-color: var(--text-main); }
-        /* Settings Grid & Toggles */
-        .settings-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
-            margin-top: 16px; padding-top: 16px; border-top: 1px dashed var(--border);
-        }
-        .setting-row {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 12px 0; border-bottom: 1px solid var(--border);
-        }
-        .setting-row:last-child { border-bottom: none; }
-        .setting-row input[type="checkbox"] {
-            appearance: none; -webkit-appearance: none; width: 44px; height: 24px; background: var(--border);
-            border-radius: 24px; position: relative; cursor: pointer; outline: none; transition: background 0.3s ease;
-        }
-        .setting-row input[type="checkbox"]::after {
-            content: ''; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; background: white;
-            border-radius: 50%; transition: transform 0.3s ease; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-        .setting-row input[type="checkbox"]:checked { background: var(--success); }
-        .setting-row input[type="checkbox"]:checked::after { transform: translateX(20px); }
-        .setting-row select {
-            appearance: none; -webkit-appearance: none; width: 220px; padding: 10px 36px 10px 16px;
-            background-color: var(--bg-color); border: 2px solid var(--border); border-radius: 10px;
-            color: var(--text-main); font-size: 0.95rem; font-weight: 500; cursor: pointer;
-            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23a0aec0%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E");
-            background-repeat: no-repeat; background-position: right 12px center; background-size: 16px;
-        }
-        /* Library Styles */
-        .library-item {
-            display: flex; justify-content: space-between; align-items: center;
-            background: var(--bg-color); padding: 10px 16px; border-radius: 8px; margin-bottom: 8px;
-            border: 1px solid var(--border);
-        }
+        h1, h2, h3, h4 { margin-top: 0; }
+        textarea { width: 100%; height: 120px; padding: 16px; border: 2px dashed var(--border); border-radius: 12px; font-family: monospace; resize: vertical; margin-bottom: 16px; background: var(--bg-color); color: var(--text-main); }
+        button { background: var(--surface); color: var(--text-main); border: 1px solid var(--border); border-radius: 8px; padding: 8px 16px; font-weight: 600; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.95rem; }
+        button:hover { border-color: var(--accent); }
+        button.primary { background: var(--accent); color: var(--surface); border: none; }
+        [data-theme="hc"] button.primary { color: #000; }
+        button.success { background: var(--success); color: var(--surface); border: none; }
+        [data-theme="hc"] button.success { color: #000; }
+        
         /* Progress Bar */
-        progress { width: 100%; height: 12px; border-radius: 6px; margin-top: 12px; border: none; background: var(--border); }
-        progress::-webkit-progress-bar { background-color: var(--border); border-radius: 6px; }
-        progress::-webkit-progress-value { background-color: var(--success); border-radius: 6px; transition: width 0.4s ease; }
-        progress::-moz-progress-bar { background-color: var(--success); border-radius: 6px; transition: width 0.4s ease; }
-        /* Tasks & Layout */
-        .stage-title { font-size: 1.2rem; margin: 24px 0 12px; font-weight: 700; color: var(--accent); }
-        .task-card {
-            background: var(--bg-color); border: 1px solid var(--border);
-            border-radius: 12px; padding: 16px; margin-bottom: 12px;
-            display: flex; gap: 16px; align-items: flex-start;
-        }
-        .task-card.completed { opacity: 0.6; background: transparent; border-style: dashed; }
-        .task-info { flex: 1; }
-        .task-name { font-weight: 600; margin-bottom: 4px; display: block; font-size: 1.05rem; }
-        .task-hint-box {
-            background: var(--surface); padding: 12px; border-radius: 8px;
-            margin-top: 10px; border-left: 4px solid var(--accent);
-            display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;
-        }
-        .task-hint-text { font-size: 0.95rem; color: var(--text-muted); flex: 1; }
-        .task-due { font-size: 0.85rem; font-weight: 600; padding: 4px 8px; border-radius: 4px; background: var(--border); }
-        .focus-complete-btn {
-            width: 100%; padding: 16px; font-size: 1.1rem; background: var(--success); color: white; border: none;
-            border-radius: 12px; cursor: pointer; font-weight: bold; margin-top: 16px;
-            box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2); transition: transform 0.1s; justify-content: center;
-        }
-        .focus-complete-btn:active { transform: scale(0.98); }
-        .ai-float-btn {
-            position: fixed; bottom: 30px; right: 30px; background: linear-gradient(135deg, #6366f1, #a855f7); color: white;
-            padding: 16px 24px; border-radius: 30px; text-decoration: none; font-weight: 700;
-            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3); display: flex; align-items: center; gap: 8px; z-index: 1000;
-        }
+        .progress-wrapper { background: var(--bg-color); border: 1px solid var(--border); height: 16px; border-radius: 8px; overflow: hidden; margin-top: 12px; }
+        .progress-fill { background: var(--success); height: 100%; width: 0%; transition: width 0.5s ease-out; }
+
+        /* 7-Day Calendar Strip */
+        .calendar-strip { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 12px; margin-bottom: 8px; }
+        .cal-day { flex: 1; min-width: 90px; background: var(--bg-color); border: 2px solid transparent; border-bottom: 3px solid var(--border); border-radius: 12px; padding: 12px 4px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.2s; cursor: pointer; opacity: 0.7; }
+        .cal-day.active { border-color: var(--accent); background: var(--surface); opacity: 1; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .cal-day.drag-over { background: #f0fdf4; border-color: var(--success); transform: scale(1.05); opacity: 1; }
+        [data-theme="dark"] .cal-day.drag-over { background: #064e3b; }
+        [data-theme="hc"] .cal-day.drag-over { background: #000; border-color: var(--success); }
+        .cal-day * { pointer-events: none; } 
+        .cal-day .day-name { font-weight: bold; font-size: 0.95rem; color: var(--text-main); }
+        .cal-day.active .day-name { color: var(--accent); }
+        .cal-day .day-date { font-size: 0.8rem; color: var(--text-muted); }
+
+        /* Kanban Layout */
+        .kanban-grid { display: grid; grid-template-columns: 1fr; gap: 24px; }
+        @media(min-width: 768px) { .kanban-grid { grid-template-columns: 1fr 1fr; } }
+        .zone-title { font-size: 1.2rem; font-weight: bold; border-bottom: 2px solid var(--border); padding-bottom: 8px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
+        .drop-zone.drag-over { border-style: dashed; border-color: var(--success); }
+        
+        /* Tasks */
+        .task-card { background: var(--bg-color); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 12px; border-left: 4px solid var(--border); cursor: grab; transition: 0.2s; }
+        .task-card:active { cursor: grabbing; transform: scale(0.98); }
+        .task-card.in-pool { border-left-color: var(--text-muted); }
+        .task-card.in-focus { border-left-color: var(--accent); }
+        .task-card.is-done { border-left-color: var(--success); opacity: 0.6; }
+        .drag-handle { color: var(--text-muted); opacity: 0.5; margin-right: 8px; cursor: grab; }
+        .badge { font-size: 0.8rem; background: var(--surface); border: 1px solid var(--border); padding: 2px 8px; border-radius: 12px; color: var(--text-muted); font-weight: bold;}
+        
+        /* Library List */
+        .lib-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; background: var(--bg-color); }
         .hidden { display: none !important; }
-        .status { padding: 12px; border-radius: 8px; margin-bottom: 16px; font-weight: 500; }
-        .success-text { background: rgba(16, 185, 129, 0.1); color: var(--success); }
-        .danger-text { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
     </style>
 </head>
 <body>
 <div class="container">
     <div class="header-bar">
-        <h1>Assessment Planner</h1>
-        <div class="top-controls">
-            <button aria-label="Decrease text size" onclick="App.changeTextSize(-1)">A-</button>
-            <button aria-label="Increase text size" onclick="App.changeTextSize(1)">A+</button>
-            <!-- NEW: The Load New Plan Button! -->
-            <button onclick="App.newPlan()" class="primary">➕ New Plan</button>
-            <button onclick="App.toggleSettings()">⚙️ Options & Tools</button>
+        <h1>🎓 Assessment Planner</h1>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button onclick="App.changeTextSize(-1)" title="Make text smaller">A-</button>
+            <button onclick="App.changeTextSize(1)" title="Make text larger">A+</button>
+            <button onclick="App.cycleTheme()" title="Change colours">🌓 Theme</button>
+            <button onclick="App.toggleLibrary()" title="Save and switch between different assignments">📚 Library</button>
+            <button onclick="App.exportICS()" title="Download as a calendar file">📅 Export</button>
+            <button onclick="App.newPlan()" class="primary" title="Load a new plan from the AI">➕ Load</button>
         </div>
     </div>
-    <!-- INGESTION BOX -->
+
+    <!-- LIBRARY PANEL -->
+    <div id="library-panel" class="bento-box hidden" style="border: 2px solid var(--accent);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h3 style="margin:0; color: var(--accent);">📚 Assessment Library</h3>
+            <button class="primary" onclick="App.saveCurrentToLibrary()">💾 Save Current Plan</button>
+        </div>
+        <p style="font-size: 0.9rem; color: var(--text-muted);">Save up to 5 plans so you can manage multiple assignments at once.</p>
+        <div id="library-list"></div>
+    </div>
+
     <div class="bento-box" id="ingest-box">
-        <p style="color: var(--text-muted); margin-top: 0;">Paste your AI plan below to get started.</p>
-        <div id="status-msg" class="hidden" role="status" aria-live="polite"></div>
-        <textarea id="json-input" placeholder="Paste your generated ```json code block here..." aria-label="AI Data Input"></textarea>
-        <button class="primary" onclick="App.loadPlan()">Load Plan</button>
+        <h3 style="margin-top:0;">Update or Load Plan</h3>
+        <p>Paste the code from your AI Coach below.</p>
+        <textarea id="json-input" placeholder="Paste your generated ```json code block here..."></textarea>
+        <button class="primary" onclick="App.loadPlan()">Load / Update Plan</button>
+        <div id="status-msg" style="color: var(--danger); margin-top: 10px; font-weight: bold;"></div>
     </div>
-    <!-- SETTINGS PANEL -->
-    <div class="bento-box hidden" id="settings-panel">
-        <h3 style="margin-top: 0;">Options & Tools</h3>
-        <!-- LIBRARY SECTION -->
-        <div class="setting-row" style="flex-direction: column; align-items: flex-start; background: var(--bg-color); padding: 16px; border-radius: 12px; margin-bottom: 16px; border: 1px solid var(--border);">
-            <div style="display: flex; justify-content: space-between; width: 100%; align-items: center; margin-bottom: 12px;">
-                <strong>📚 Assessment Library</strong>
-                <button class="primary small-btn" onclick="App.saveToLibrary()">💾 Save Current</button>
+
+    <div id="app-content" class="hidden">
+        <!-- HEADER & PROGRESS -->
+        <div class="bento-box" style="margin-bottom: 24px;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px;">
+                <div>
+                    <h2 id="plan-title" style="color: var(--accent); margin-bottom: 4px;">Study Plan</h2>
+                    <p id="plan-due" style="margin: 0; color: var(--text-muted); font-weight: bold;"></p>
+                </div>
+                <div style="min-width: 250px; flex-grow: 1; text-align: right;">
+                    <strong style="color: var(--text-main);">Progress: <span id="progress-text">0%</span></strong>
+                    <div class="progress-wrapper" title="Your overall completion progress">
+                        <div id="progress-bar" class="progress-fill"></div>
+                    </div>
+                </div>
             </div>
-            <div id="library-list" style="width: 100%;"></div>
         </div>
-        <div class="setting-row">
-            <label for="toggle-focus"><strong>Focus Mode</strong> (One task at a time)</label>
-            <input type="checkbox" id="toggle-focus" onchange="App.render()" checked>
-        </div>
-        <div class="setting-row">
-            <label for="theme-select">App Theme</label>
-            <select id="theme-select" onchange="App.setTheme(this.value)">
-                <option value="light">Light Mode</option>
-                <option value="dark" selected>Dark Mode</option>
-            </select>
-        </div>
-        <div class="setting-row">
-            <label for="block-length">Study Block Length (For Calendar)</label>
-            <select id="block-length">
-                <option value="25" selected>25 mins (Pomodoro)</option>
-                <option value="45">45 mins (Standard)</option>
-                <option value="60">60 mins (Deep Work)</option>
-            </select>
-        </div>
-        <div class="settings-grid">
-            <button onclick="App.exportICS()">📅 Export Time Blocks</button>
-            <button onclick="App.reflowDates()">🔄 Reflow Dates to Today</button>
-            <button onclick="window.print()">🖨️ Print Plan</button>
-            <button onclick="App.clearApp()" style="color: var(--danger); border-color: var(--danger);">🗑️ Clear App</button>
+
+        <!-- 7-DAY CALENDAR FILTER -->
+        <h3 style="font-size: 1rem; color: var(--text-muted); margin-bottom: 8px;">📅 The 7-Day Horizon</h3>
+        <div class="calendar-strip" id="calendar-strip" title="Click a day to view its tasks, or drop a task here to schedule it"></div>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0; margin-bottom: 24px; font-style: italic;">
+            Click a day to view its tasks, or drag a task onto a day to schedule it!
+        </p>
+
+        <!-- KANBAN BOARD -->
+        <div class="kanban-grid">
+            <div class="bento-box drop-zone" ondragover="DnD.over(event)" ondragleave="DnD.leave(event)" ondrop="DnD.drop(event, 'pool')" title="Drop tasks here to unschedule them">
+                <div class="zone-title">📋 Task Pool</div>
+                <div id="col-pool"></div>
+            </div>
+
+            <div>
+                <div class="bento-box zone-focus drop-zone" ondragover="DnD.over(event)" ondragleave="DnD.leave(event)" ondrop="DnD.drop(event, 'focus')" style="border: 2px solid var(--accent);" title="Drop tasks here to schedule them for this day">
+                    <div class="zone-title" style="color: var(--accent);"><span id="focus-title">🎯 Today's Focus</span></div>
+                    <div id="col-focus"></div>
+                    <p id="empty-focus" style="font-size: 0.9rem; color: var(--text-muted); font-style: italic;"></p>
+                </div>
+
+                <div class="bento-box drop-zone" ondragover="DnD.over(event)" ondragleave="DnD.leave(event)" ondrop="DnD.drop(event, 'done')">
+                    <div class="zone-title" style="color: var(--success); border-bottom:none; padding:0; margin:0;">
+                        <span>✅ Completed</span>
+                        <button id="btn-toggle-done" onclick="App.toggleDone()" style="padding: 4px 10px; font-size: 0.85rem;" title="Show or hide your finished tasks">👀 Show</button>
+                    </div>
+                    <div id="col-done" class="hidden" style="margin-top: 16px; border-top: 2px solid var(--border); padding-top: 16px;"></div>
+                </div>
+            </div>
         </div>
     </div>
-    <!-- MAIN APP CONTENT -->
-    <div id="app-content"></div>
 </div>
-<!--<a href="https://m365.cloud.microsoft/chat/?titleId=T_86772f38-9eb2-5a1b-9846-a28f5dee5243&source=embedded-builder" target="_blank" class="ai-float-btn">✨ Ask AI Coach</a>-->
+
 <script>
+window.onerror = function(msg) { alert("Error: " + msg); return true; };
+
 var U = {
     id: function(s) { return document.getElementById(s) },
-    escape: function(s) {
-        if (!s) return '';
-        return String(s).replace(/[&<>"']/g, function(c) {
-            return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]
-        });
+    escape: function(s) { return String(s || '').replace(/[&<>"']/g, function(c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c] }) },
+    uuid: function() { return 't_' + Math.random().toString(36).substr(2, 9) },
+    getTodayStr: function() { var d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); },
+    fmtNZ: function(dateStr) {
+        if(!dateStr) return "Unscheduled";
+        try { var p = dateStr.split('-'); if(p.length !== 3) return dateStr; return p[2] + '.' + p[1] + '.' + p[0]; } catch(e) { return dateStr; }
     },
-    // Fixes the ICS output to prevent broken files if AI uses commas/newlines
-    escapeICS: function(s) {
-        if (!s) return "";
-        return String(s).replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n');
-    },
-    status: function(id, msg, warn) {
-        var e = this.id(id);
-        if(e) { e.textContent = msg; e.className = 'status ' + (warn ? 'danger-text' : 'success-text'); e.classList.remove('hidden'); }
-    },
-    fmtD: function(d) { return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0') },
-    niceD: function(d) { return d.toLocaleDateString('en-NZ', {weekday:'short', day:'numeric', month:'short'}) },
-    parseD: function(s) { var p = s.split('-'); return new Date(+p[0], +p[1]-1, +p[2]) },
-    // Removed the 'Z' (UTC) so it correctly exports in New Zealand local time
-    icsDate: function(d) { return d.getFullYear() + String(d.getMonth()+1).padStart(2,'0') + String(d.getDate()).padStart(2,'0') + 'T090000' },
-    uuid: function() { return 't_' + Math.random().toString(36).substr(2, 9) }
+    getDaysMap: function() {
+        var days = [], today = new Date();
+        var dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        for(var i=0; i<7; i++) {
+            var d = new Date(today); d.setDate(today.getDate() + i);
+            var yyyy = d.getFullYear(), mm = String(d.getMonth()+1).padStart(2,'0'), dd = String(d.getDate()).padStart(2,'0');
+            days.push({ name: i===0 ? 'Today' : dayNames[d.getDay()], dateStr: `${yyyy}-${mm}-${dd}`, display: `${dd}.${mm}` });
+        }
+        return days;
+    }
 };
-var App = {
-    data: null,
-    zoomLevel: 0,
-    init: function() {
-        this.setTheme('dark');
-        // Restore zoom preference
-        var savedZoom = localStorage.getItem('plannerZoom');
-        if (savedZoom) { this.zoomLevel = parseInt(savedZoom, 10); this.applyTextSize(); }
-        var saved = localStorage.getItem('plannerData');
-        if (saved) {
-            this.data = JSON.parse(saved);
-            this.render();
-            U.id('ingest-box').classList.add('hidden');
-        }
-        this.renderLibrary();
-    },
-    // NEW FUNCTION: Brings back the paste box so they can load a new plan
-    newPlan: function() {
-        if (this.data) {
-            if (!confirm("Ready to start a new plan? Make sure you have saved your current one to the Library if you want to keep it!")) return;
-        }
-        this.data = null;
-        localStorage.removeItem('plannerData');
-        U.id('app-content').innerHTML = '';
-        U.id('json-input').value = '';
-        U.id('ingest-box').classList.remove('hidden');
-        if (!U.id('settings-panel').classList.contains('hidden')) {
-            this.toggleSettings(); // Close settings panel if it was open
-        }
-    },
-    // --- ACCESSIBILITY FUNCTIONS ---
-    changeTextSize: function(delta) {
-        this.zoomLevel += delta;
-        if (this.zoomLevel < -2) this.zoomLevel = -2;
-        if (this.zoomLevel > 4) this.zoomLevel = 4;
-        this.applyTextSize();
-        localStorage.setItem('plannerZoom', this.zoomLevel);
-    },
-    applyTextSize: function() {
-        document.documentElement.style.fontSize = (16 + (this.zoomLevel * 2)) + 'px';
-    },
-    readHint: function(taskId) {
-        if (!window.speechSynthesis) return alert("Text-to-speech not supported in this browser.");
-        var task = null;
-        this.data.stages.forEach(function(s) { s.tasks.forEach(function(t) { if (t.id === taskId) task = t; }); });
-        if (!task || !task.hint) return;
-        window.speechSynthesis.cancel(); // Stop any current speech
-        var utterance = new SpeechSynthesisUtterance(task.hint);
-        utterance.lang = 'en-NZ';
-        window.speechSynthesis.speak(utterance);
-    },
-    setTheme: function(theme) { document.documentElement.setAttribute('data-theme', theme); },
-    toggleSettings: function() { U.id('settings-panel').classList.toggle('hidden'); },
-    
-    cleanAndParseAI: function(raw) {
-        // 1. Try to parse it normally first
-        try { return JSON.parse(raw); } catch(e) {}
-        
-        var clean = raw;
-        
-        // 2. Look for the Markdown code blocks first
-        var match = clean.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
-        if (match && match[1]) { 
-            clean = match[1]; 
-        } else {
-            // 3. If no code blocks, dig out everything between the first { and last }
-            var first = clean.indexOf('{');
-            var last = clean.lastIndexOf('}');
-            if (first !== -1 && last !== -1 && last > first) { 
-                clean = clean.substring(first, last + 1); 
-            }
-        }
-        
-        // 4. Strip pesky trailing commas the AI sometimes leaves behind
-        clean = clean.replace(/,(\s*[\]}])/g, '$1').trim();
-        
-        // 5. Final parse
-        try { return JSON.parse(clean); } catch(e) { return null; }
-    },
 
-    loadPlan: function() {
-        var input = U.id('json-input').value;
-        var parsed = this.cleanAndParseAI(input);
-        if (!parsed || !parsed.stages) {
-            U.status('status-msg', 'Error: Could not read the plan. Make sure you pasted the complete JSON code.', true);
-            return;
-        }
-        parsed.stages.forEach(function(s) { s.tasks.forEach(function(t) { t.id = U.uuid(); t.done = false; }); });
-        this.data = parsed;
-        this.save();
-        U.id('ingest-box').classList.add('hidden');
-        U.id('json-input').value = '';
-        U.id('status-msg').classList.add('hidden');
-        this.render();
+var DnD = {
+    draggedId: null,
+    start: function(e, id) { this.draggedId = id; e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', id); setTimeout(()=> e.target.style.opacity='0.4', 0); },
+    end: function(e) { e.target.style.opacity = '1'; this.draggedId = null; document.querySelectorAll('.drop-zone, .cal-day').forEach(z => z.classList.remove('drag-over')); },
+    over: function(e) { e.preventDefault(); e.currentTarget.classList.add('drag-over'); },
+    leave: function(e) { e.currentTarget.classList.remove('drag-over'); },
+    drop: function(e, dropZone) { 
+        e.preventDefault(); e.currentTarget.classList.remove('drag-over'); 
+        var id = e.dataTransfer.getData('text/plain') || this.draggedId; 
+        if(!id) return;
+        if(dropZone === 'pool') App.changeStatusAndDate(id, 'pending', null);
+        else if(dropZone === 'focus') App.changeStatusAndDate(id, 'pending', App.selectedDate);
+        else if(dropZone === 'done') App.changeStatusAndDate(id, 'done', undefined); 
     },
-    save: function() { localStorage.setItem('plannerData', JSON.stringify(this.data)); },
-    clearApp: function() {
-        if(confirm("This will clear your screen (Saved plans in your library won't be deleted). Proceed?")) {
-            localStorage.removeItem('plannerData');
-            this.data = null;
-            U.id('ingest-box').classList.remove('hidden');
-            U.id('app-content').innerHTML = '';
-            U.id('settings-panel').classList.add('hidden');
-        }
+    dropCalendar: function(e, dateStr) {
+        e.preventDefault(); e.currentTarget.classList.remove('drag-over');
+        var id = e.dataTransfer.getData('text/plain') || this.draggedId; 
+        if(id) App.changeStatusAndDate(id, 'pending', dateStr);
+    }
+};
+
+var App = {
+    data: null, showDone: false, manualReveals: 0,
+    selectedDate: U.getTodayStr(), zoomLevel: 0,
+    themes: ['light', 'dark', 'hc'], currentThemeIdx: 0,
+
+    init: function() {
+        var savedTheme = localStorage.getItem('plannerThemeIdx');
+        if(savedTheme) { this.currentThemeIdx = parseInt(savedTheme); this.applyTheme(); }
+        var savedZoom = localStorage.getItem('plannerZoom');
+        if(savedZoom) { this.zoomLevel = parseInt(savedZoom); this.applyTextSize(); }
+        
+        var saved = localStorage.getItem('plannerData4.2'); // Kept same key so it doesn't lose data
+        if (saved) { this.data = JSON.parse(saved); this.render(); }
+        else { this.renderCalendar(); }
     },
-    // --- LIBRARY FUNCTIONS ---
-    getLibrary: function() { return JSON.parse(localStorage.getItem('plannerLibrary') || '[]'); },
-    saveToLibrary: function() {
-        if (!this.data) return alert("No active plan to save!");
+    
+    changeTextSize: function(delta) { this.zoomLevel = Math.max(-2, Math.min(4, this.zoomLevel + delta)); this.applyTextSize(); localStorage.setItem('plannerZoom', this.zoomLevel); },
+    applyTextSize: function() { document.documentElement.style.fontSize = (16 + (this.zoomLevel * 2)) + 'px'; },
+    cycleTheme: function() { this.currentThemeIdx = (this.currentThemeIdx + 1) % this.themes.length; this.applyTheme(); localStorage.setItem('plannerThemeIdx', this.currentThemeIdx); },
+    applyTheme: function() { var t = this.themes[this.currentThemeIdx]; document.documentElement.setAttribute('data-theme', t === 'light' ? '' : t); },
+
+    newPlan: function() { U.id('app-content').classList.add('hidden'); U.id('ingest-box').classList.remove('hidden'); U.id('json-input').value = ''; U.id('library-panel').classList.add('hidden');},
+    toggleDone: function() { this.showDone = !this.showDone; U.id('col-done').classList.toggle('hidden', !this.showDone); U.id('btn-toggle-done').textContent = this.showDone ? "🙈 Hide" : "👀 Show"; },
+    unlockNext: function() { this.manualReveals++; this.render(); },
+    selectDate: function(dateStr) { this.selectedDate = dateStr; this.render(); },
+
+    // --- LIBRARY LOGIC ---
+    toggleLibrary: function() {
+        var panel = U.id('library-panel');
+        panel.classList.toggle('hidden');
+        if(!panel.classList.contains('hidden')) this.renderLibrary();
+    },
+    getLibrary: function() { return JSON.parse(localStorage.getItem('plannerLibraryData') || '[]'); },
+    saveCurrentToLibrary: function() {
+        if(!this.data) return alert("No active plan to save!");
         var lib = this.getLibrary();
-        var entryName = this.data.assignment || "Untitled Plan";
-        var newEntry = { id: U.uuid(), name: entryName, savedAt: new Date().getTime(), payload: this.data };
-        lib.unshift(newEntry);
+        var name = this.data.assignment || "Untitled Plan";
+        // Remove old version if it exists
+        lib = lib.filter(e => e.name !== name);
+        var entry = { id: U.uuid(), name: name, savedAt: Date.now(), data: this.data };
+        lib.unshift(entry);
         if(lib.length > 5) lib.pop();
-        localStorage.setItem('plannerLibrary', JSON.stringify(lib));
+        localStorage.setItem('plannerLibraryData', JSON.stringify(lib));
         this.renderLibrary();
-        alert("Plan saved to library!");
+        alert("Plan saved successfully!");
     },
     loadFromLibrary: function(id) {
         var lib = this.getLibrary();
-        var plan = lib.find(function(p) { return p.id === id; });
-        if(plan) {
-            this.data = plan.payload;
+        var entry = lib.find(e => e.id === id);
+        if(entry) {
+            this.data = entry.data;
+            this.manualReveals = 0;
             this.save();
-            this.render();
+            U.id('library-panel').classList.add('hidden');
             U.id('ingest-box').classList.add('hidden');
-            alert("Plan loaded successfully!");
+            this.render();
         }
     },
     deleteFromLibrary: function(id) {
-        if(!confirm("Delete this saved plan forever?")) return;
-        var lib = this.getLibrary().filter(function(p) { return p.id !== id; });
-        localStorage.setItem('plannerLibrary', JSON.stringify(lib));
+        if(!confirm("Are you sure you want to delete this saved plan?")) return;
+        var lib = this.getLibrary().filter(e => e.id !== id);
+        localStorage.setItem('plannerLibraryData', JSON.stringify(lib));
         this.renderLibrary();
     },
     renderLibrary: function() {
         var lib = this.getLibrary();
         var html = '';
-        if (lib.length === 0) {
-            html = '<p style="color: var(--text-muted); font-size: 0.9em; margin: 0;">No plans saved yet.</p>';
+        if(lib.length === 0) {
+            html = '<p style="color:var(--text-muted); font-style:italic;">No plans saved yet.</p>';
         } else {
-            lib.forEach(function(p) {
+            lib.forEach(p => {
                 var d = new Date(p.savedAt).toLocaleDateString('en-NZ');
-                html += '<div class="library-item">';
-                html += '<div style="flex:1;"><strong>' + U.escape(p.name) + '</strong><br><small style="color:var(--text-muted)">Saved: ' + d + '</small></div>';
-                html += '<div>';
-                html += '<button class="small-btn" onclick="App.loadFromLibrary(\'' + p.id + '\')" style="margin-right: 8px;">Load</button>';
-                html += '<button class="small-btn" onclick="App.deleteFromLibrary(\'' + p.id + '\')" style="color: var(--danger); border-color: var(--danger);">X</button>';
-                html += '</div></div>';
+                html += `<div class="lib-item">
+                    <div><strong style="color:var(--accent);">${U.escape(p.name)}</strong><br><small style="color:var(--text-muted)">Saved: ${d}</small></div>
+                    <div style="display:flex; gap:8px;">
+                        <button onclick="App.loadFromLibrary('${p.id}')">📂 Load</button>
+                        <button onclick="App.deleteFromLibrary('${p.id}')" style="color:var(--danger); border-color:var(--danger);">🗑️</button>
+                    </div>
+                </div>`;
             });
         }
         U.id('library-list').innerHTML = html;
     },
-    // --- TASK COMPLETION & UNDO ---
-    completeTask: function(taskId) {
-        if (!this.data) return;
-        this.data.stages.forEach(function(s) { s.tasks.forEach(function(t) { if (t.id === taskId) t.done = true; }); });
-        this.save(); this.render();
-    },
-    uncompleteTask: function(taskId) {
-        if (!this.data) return;
-        this.data.stages.forEach(function(s) { s.tasks.forEach(function(t) { if (t.id === taskId) t.done = false; }); });
-        this.save(); this.render();
-    },
-    render: function() {
-        if (!this.data) return;
-        // Calculate overall progress
-        var total = 0, doneCount = 0;
-        this.data.stages.forEach(function(s) { s.tasks.forEach(function(t) { total++; if(t.done) doneCount++; }); });
-        var html = '<div class="bento-box" style="border-left: 4px solid var(--accent)">';
-        html += '<h2 style="margin-top:0;">' + U.escape(this.data.assignment) + '</h2>';
-        html += '<p style="margin-bottom:8px;"><strong>Due:</strong> ' + U.niceD(U.parseD(this.data.dueDate)) + '</p>';
-        html += '<div style="display:flex; justify-content:space-between; font-size:0.85rem; color:var(--text-muted);"><span>Progress</span><span>' + doneCount + ' / ' + total + ' Tasks</span></div>';
-        html += '<progress value="' + doneCount + '" max="' + total + '"></progress>';
-        html += '</div>';
-        if (U.id('toggle-focus').checked) {
-            var nextTask = null, currentStage = null;
-            for (var i=0; i<this.data.stages.length; i++) {
-                var stage = this.data.stages[i];
-                for (var j=0; j<stage.tasks.length; j++) {
-                    if (!stage.tasks[j].done) { nextTask = stage.tasks[j]; currentStage = stage; break; }
-                }
-                if (nextTask) break;
-            }
-            if (nextTask) {
-                html += '<h3 style="text-align:center; color: var(--text-muted);">Current Focus Area</h3>';
-                html += '<div class="stage-title" style="text-align:center;">' + U.escape(currentStage.title) + '</div>';
-                html += '<div class="task-card" style="flex-direction: column; padding: 32px; border: 2px solid var(--accent);">';
-                html += '<div style="text-align:center; width: 100%;">';
-                html += '<span class="task-due" style="margin-bottom: 12px; display:inline-block;">Aim to finish by: ' + U.niceD(U.parseD(nextTask.due)) + '</span>';
-                html += '<span class="task-name" style="font-size: 1.5rem; margin-bottom: 16px;">' + U.escape(nextTask.name) + '</span>';
-                html += '</div>';
-                if (nextTask.hint) {
-                    html += '<div class="task-hint-box" style="width: 100%; box-sizing: border-box;">';
-                    html += '<div class="task-hint-text">💡 ' + U.escape(nextTask.hint) + '</div>';
-                    html += '<button class="small-btn" onclick="App.readHint(\'' + nextTask.id + '\')" aria-label="Read hint aloud">🔊 Listen</button>';
-                    html += '</div>';
-                }
-                html += '<button class="focus-complete-btn" onclick="App.completeTask(\'' + nextTask.id + '\')">✅ Complete Task & Next</button>';
-                html += '</div>';
-            } else {
-                html += '<div class="bento-box" style="text-align:center; border-color: var(--success);"><h2 style="color: var(--success);">🎉 All tasks completed!</h2></div>';
-            }
-        } else {
-            this.data.stages.forEach(function(s) {
-                html += '<div class="stage-title">' + U.escape(s.title) + '</div>';
-                s.tasks.forEach(function(t) {
-                    var cClass = t.done ? ' task-card completed' : ' task-card';
-                    var btnHtml = t.done
-                        ? '<button class="small-btn undo-btn" onclick="App.uncompleteTask(\'' + t.id + '\')" aria-label="Undo task completion">↩️ Undo</button>'
-                        : '<button class="small-btn primary" onclick="App.completeTask(\'' + t.id + '\')">Done</button>';
-                    html += '<div class="' + cClass + '"><div style="margin-top: 4px;">' + btnHtml + '</div><div class="task-info">';
-                    html += '<span class="task-name">' + U.escape(t.name) + '</span>';
-                    html += '<span class="task-due">' + U.niceD(U.parseD(t.due)) + '</span>';
-                    if (t.hint) {
-                        html += '<div class="task-hint-box">';
-                        html += '<div class="task-hint-text">💡 ' + U.escape(t.hint) + '</div>';
-                        html += '<button class="small-btn" onclick="App.readHint(\'' + t.id + '\')" aria-label="Read hint aloud">🔊</button>';
-                        html += '</div>';
-                    }
-                    html += '</div></div>';
+
+    loadPlan: function() {
+        U.id('status-msg').textContent = "";
+        var input = U.id('json-input').value;
+        if (!input.trim()) return U.id('status-msg').textContent = "Please paste the code.";
+        
+        try {
+            var raw = input, match = raw.match(/```(?:json)?\s*([\s\S]*?)\s*```/i), clean = match ? match[1] : raw;
+            var first = clean.indexOf('{'), last = clean.lastIndexOf('}');
+            if (first !== -1 && last !== -1) clean = clean.substring(first, last + 1);
+            var parsed = JSON.parse(clean.replace(/,(\s*[\]}])/g, '$1').trim());
+            
+            if(parsed.stages) parsed.stages.sort((a,b) => (parseInt((a.name||a.title||"").replace(/\D/g, ''))||0) - (parseInt((b.name||b.title||"").replace(/\D/g, ''))||0));
+
+            if (this.data && this.data.stages) {
+                parsed.stages.forEach(newStage => {
+                    if(newStage.tasks) newStage.tasks.forEach(newTask => {
+                        newTask.id = U.uuid(); newTask.status = 'pending'; newTask.due = null; 
+                        this.data.stages.forEach(oldStage => {
+                            if(oldStage.tasks) oldStage.tasks.forEach(oldTask => {
+                                if (oldTask.name === newTask.name) { newTask.status = oldTask.status; newTask.id = oldTask.id; newTask.due = oldTask.due; }
+                            });
+                        });
+                    });
                 });
-            });
-        }
-        U.id('app-content').innerHTML = html;
-    },
-    reflowDates: function() {
-        if(!this.data) return;
-        var todayStr = U.fmtD(new Date()), todayObj = new Date(); todayObj.setHours(0,0,0,0);
-        this.data.stages.forEach(function(s) { s.tasks.forEach(function(t) {
-            if (!t.done && U.parseD(t.due) < todayObj) { t.due = todayStr; }
-        });});
-        this.save(); this.render(); alert("Past dates caught up to today.");
-    },
-    exportICS: function() {
-        if(!this.data) return;
-        var mins = parseInt(U.id('block-length').value, 10);
-        var ics = ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Neuro-Inclusive Planner//EN"];
-        this.data.stages.forEach(function(s) { s.tasks.forEach(function(t) {
-            if(!t.done) {
-                var d = U.parseD(t.due), endD = new Date(d.getTime() + mins*60000);
-                // Timezone Z is removed, U.escapeICS ensures valid format
-                ics.push(
-                    "BEGIN:VEVENT",
-                    "DTSTART:" + U.icsDate(d),
-                    "DTEND:" + U.icsDate(endD),
-                    "SUMMARY:Study: " + U.escapeICS(t.name),
-                    "DESCRIPTION:" + U.escapeICS(t.hint || ""),
-                    "END:VEVENT"
-                );
+            } else {
+                if(parsed.stages) parsed.stages.forEach(s => { if(s.tasks) s.tasks.forEach(t => { t.id = U.uuid(); t.status = 'pending'; t.due = t.due || null; })});
             }
-        });});
-        ics.push("END:VCALENDAR");
-        var blob = new Blob([ics.join("\r\n")], {type: 'text/calendar'});
-        var link = document.createElement('a'); link.href = window.URL.createObjectURL(blob); link.download = "study_plan.ics"; link.click();
+            
+            this.data = parsed; this.manualReveals = 0;
+            localStorage.setItem('plannerData4.2', JSON.stringify(this.data));
+            U.id('ingest-box').classList.add('hidden'); this.render();
+            
+        } catch(err) { U.id('status-msg').textContent = "Could not read the JSON. Did you copy the whole block?"; }
+    },
+    
+    changeStatusAndDate: function(id, newStatus, newDate) {
+        if(!this.data) return;
+        this.data.stages.forEach(s => { if(s.tasks) s.tasks.forEach(t => { 
+            if(t.id === id) { t.status = newStatus; if(newDate !== undefined) t.due = newDate; }
+        })});
+        this.save();
+    },
+    save: function() { localStorage.setItem('plannerData4.2', JSON.stringify(this.data)); this.render(); },
+    
+    renderCalendar: function() {
+        var days = U.getDaysMap();
+        var html = '';
+        var selectedName = "Today";
+        days.forEach(d => {
+            var isActive = d.dateStr === this.selectedDate;
+            if(isActive) selectedName = d.name;
+            html += `<div class="cal-day drop-zone ${isActive ? 'active' : ''}" onclick="App.selectDate('${d.dateStr}')" ondragenter="DnD.over(event)" ondragover="DnD.over(event)" ondragleave="DnD.leave(event)" ondrop="DnD.dropCalendar(event, '${d.dateStr}')" title="Click to view tasks, or drop a task to reschedule it to ${d.name}">
+                        <span class="day-name">${d.name}</span>
+                        <span class="day-date">${d.display}</span>
+                     </div>`;
+        });
+        U.id('calendar-strip').innerHTML = html;
+        U.id('focus-title').innerHTML = `🎯 ${selectedName}'s Focus`;
+        U.id('empty-focus').textContent = `No tasks assigned to ${selectedName} yet. Drag one here!`;
+    },
+
+    render: function() {
+        this.renderCalendar();
+        U.id('app-content').classList.remove('hidden');
+        U.id('plan-title').textContent = this.data.assignment || "Study Plan";
+        U.id('plan-due').textContent = this.data.dueDate ? "🎯 Final Deadline: " + U.fmtNZ(this.data.dueDate) : "";
+        
+        var htmlPool = '', htmlFocus = '', htmlDone = '';
+        var focusCount = 0, totalTasks = 0, completedTasks = 0;
+        
+        var visiblePoolCount = 0, allowedPoolCount = 1 + this.manualReveals, lockedCount = 0;
+
+        this.data.stages.forEach((stage, sIdx) => {
+            var stageHeaderTitle = `Stage ${sIdx + 1}: ${U.escape(stage.title || stage.name)}`;
+            var poolHtmlForStage = '';
+            
+            if(stage.tasks) stage.tasks.forEach(t => {
+                totalTasks++;
+                if (t.status === 'done') completedTasks++;
+
+                var dateTxt = U.fmtNZ(t.due);
+                var isFocus = (t.status === 'pending' && t.due === this.selectedDate);
+                var isPool = (t.status === 'pending' && t.due !== this.selectedDate);
+                
+                var card = `<div class="task-card ${isFocus ? 'in-focus' : (t.status==='done'?'is-done':'in-pool')}" draggable="true" ondragstart="DnD.start(event, '${t.id}')" ondragend="DnD.end(event)">
+                    <div style="font-weight:bold; margin-bottom:8px;"><span class="drag-handle" title="Click and drag to move this task">⋮⋮</span>${U.escape(t.name)}</div>
+                    <div style="display:flex; gap:8px; margin-bottom:12px;">
+                        <span class="badge" title="Drag this card to a calendar day to change its date!" style="${isPool?'background:#e0f2fe; color:#0369a1; border-color:#bae6fd;':''}">📅 ${dateTxt}</span>
+                        <span class="badge">⏳ ~45m</span>
+                    </div>
+                    ${t.hint ? `<div style="font-size:0.9rem; color:var(--text-muted); background:var(--surface); padding:8px; border-radius:6px; border-left:3px solid var(--accent);">💡 ${U.escape(t.hint)}</div>` : ''}
+                    <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">`;
+                
+                if (isPool) { 
+                    card += `<button onclick="App.changeStatusAndDate('${t.id}', 'pending', App.selectedDate)" title="Move to currently selected calendar day">Move to ${U.id('focus-title').innerText.replace('🎯 ', '').split("'")[0]} ➔</button></div></div>`; 
+                    if (visiblePoolCount < allowedPoolCount) { poolHtmlForStage += card; visiblePoolCount++; } else { lockedCount++; }
+                }
+                else if (isFocus) { 
+                    card += `<button class="success" onclick="App.changeStatusAndDate('${t.id}', 'done', undefined)">✅ Mark Done</button> <button onclick="App.changeStatusAndDate('${t.id}', 'pending', null)" style="margin-left:auto;" title="Remove the date and put it back in the pool">↩️ Back to Pool</button></div></div>`; 
+                    htmlFocus += card; focusCount++;
+                }
+                else if (t.status === 'done') { 
+                    card += `<button onclick="App.changeStatusAndDate('${t.id}', 'pending', App.selectedDate)">↩️ Undo</button></div></div>`; 
+                    htmlDone += card; 
+                }
+            });
+
+            if(poolHtmlForStage !== '') htmlPool += `<h4 style="margin-top:20px; color:var(--accent);">${stageHeaderTitle}</h4>${poolHtmlForStage}`;
+        });
+
+        if (lockedCount > 0) htmlPool += `<div style="text-align:center; margin-top:20px;"><button onclick="App.unlockNext()" style="width:100%; padding: 12px; border: 2px dashed var(--border); background: transparent; color: var(--text-muted);">🔒 Unlock next step</button></div>`;
+
+        var pct = totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100);
+        U.id('progress-text').textContent = pct + '%';
+        U.id('progress-bar').style.width = pct + '%';
+
+        U.id('col-pool').innerHTML = htmlPool || '<p style="text-align:center; padding: 20px; background:var(--surface); border-radius:8px;">🎉 All tasks allocated!</p>';
+        U.id('col-focus').innerHTML = htmlFocus;
+        U.id('empty-focus').style.display = focusCount > 0 ? 'none' : 'block';
+        U.id('col-done').innerHTML = htmlDone || '<p style="color:var(--text-muted);">Nothing completed yet.</p>';
+    },
+    
+    exportICS: function() {
+        if (!this.data) return;
+        var ics = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//AssessmentPlanner//NZ\n";
+        this.data.stages.forEach(s => {
+            if(s.tasks) s.tasks.forEach(t => {
+                if (!t.due || t.status === 'done') return;
+                try {
+                    var p = t.due.split('-'); var dt = p[0] + p[1] + p[2];
+                    ics += "BEGIN:VEVENT\nUID:" + t.id + "@planner\nDTSTAMP:" + dt + "T090000\n";
+                    ics += "DTSTART;VALUE=DATE:" + dt + "\nDTEND;VALUE=DATE:" + dt + "\n";
+                    ics += "SUMMARY:" + (this.data.assignment||"Task") + ": " + t.name + "\n";
+                    if(t.hint) ics += "DESCRIPTION:" + t.hint.replace(/\n/g, '\\n') + "\n";
+                    ics += "END:VEVENT\n";
+                } catch(e) {}
+            });
+        });
+        ics += "END:VCALENDAR";
+        var blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+        var link = document.createElement('a'); link.href = window.URL.createObjectURL(blob);
+        link.download = "StudyPlan.ics"; document.body.appendChild(link); link.click(); document.body.removeChild(link);
     }
 };
-window.onload = function() { App.init(); };
+App.init();
 </script>
 </body>
 </html>
