@@ -3,15 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Assessment Planner 4.3</title>
+    <title>Assessment Planner 6.0</title>
     <style>
-        /* THEMES */
-        :root { --bg-color: #f8fafc; --surface: #ffffff; --text-main: #0f172a; --text-muted: #64748b; --border: #e2e8f0; --accent: #3b82f6; --success: #10b981; --danger: #ef4444; }
-        [data-theme="dark"] { --bg-color: #0f172a; --surface: #1e293b; --text-main: #f8fafc; --text-muted: #94a3b8; --border: #334155; --accent: #60a5fa; }
-        [data-theme="hc"] { --bg-color: #000000; --surface: #000000; --text-main: #ffffff; --text-muted: #cccccc; --border: #ffffff; --accent: #ffff00; --success: #00ff00; --danger: #ff0000; }
+        :root { --bg-color: #f8fafc; --surface: #ffffff; --text-main: #0f172a; --text-muted: #64748b; --border: #e2e8f0; --accent: #3b82f6; --success: #10b981; --danger: #ef4444; --notify: #8b5cf6; --warning: #f59e0b; }
+        [data-theme="dark"] { --bg-color: #0f172a; --surface: #1e293b; --text-main: #f8fafc; --text-muted: #94a3b8; --border: #334155; --accent: #60a5fa; --notify: #a78bfa; --warning: #fbbf24; }
+        [data-theme="hc"] { --bg-color: #000000; --surface: #000000; --text-main: #ffffff; --text-muted: #cccccc; --border: #ffffff; --accent: #ffff00; --success: #00ff00; --danger: #ff0000; --notify: #ff00ff; --warning: #ff9900; }
         
         body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg-color); color: var(--text-main); margin: 0; padding: 20px; line-height: 1.6; transition: 0.2s; }
-        .container { max-width: 1000px; margin: 0 auto; }
+        .container { max-width: 1050px; margin: 0 auto; }
         .bento-box { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
         [data-theme="hc"] .bento-box { border: 2px solid var(--border); box-shadow: none; }
         
@@ -25,63 +24,75 @@
         button.success { background: var(--success); color: var(--surface); border: none; }
         [data-theme="hc"] button.success { color: #000; }
         
-        /* Progress Bar */
         .progress-wrapper { background: var(--bg-color); border: 1px solid var(--border); height: 16px; border-radius: 8px; overflow: hidden; margin-top: 12px; }
         .progress-fill { background: var(--success); height: 100%; width: 0%; transition: width 0.5s ease-out; }
-
-        /* 7-Day Calendar Strip */
-        .calendar-strip { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 12px; margin-bottom: 8px; }
-        .cal-day { flex: 1; min-width: 90px; background: var(--bg-color); border: 2px solid transparent; border-bottom: 3px solid var(--border); border-radius: 12px; padding: 12px 4px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.2s; cursor: pointer; opacity: 0.7; }
+        
+        .calendar-strip { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 16px; margin-bottom: 8px; scroll-behavior: smooth; }
+        .calendar-strip::-webkit-scrollbar { height: 10px; }
+        .calendar-strip::-webkit-scrollbar-track { background: var(--bg-color); border-radius: 8px; }
+        .calendar-strip::-webkit-scrollbar-thumb { background: var(--border); border-radius: 8px; }
+        
+        .cal-day { position: relative; flex: 0 0 auto; min-width: 90px; background: var(--bg-color); border: 2px solid transparent; border-bottom: 3px solid var(--border); border-radius: 12px; padding: 12px 4px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.2s; cursor: pointer; opacity: 0.7; }
         .cal-day.active { border-color: var(--accent); background: var(--surface); opacity: 1; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .cal-day.drag-over { background: #f0fdf4; border-color: var(--success); transform: scale(1.05); opacity: 1; }
-        [data-theme="dark"] .cal-day.drag-over { background: #064e3b; }
-        [data-theme="hc"] .cal-day.drag-over { background: #000; border-color: var(--success); }
         .cal-day * { pointer-events: none; } 
         .cal-day .day-name { font-weight: bold; font-size: 0.95rem; color: var(--text-main); }
         .cal-day.active .day-name { color: var(--accent); }
         .cal-day .day-date { font-size: 0.8rem; color: var(--text-muted); }
+        
+        .cal-badge { position: absolute; top: -8px; right: -8px; background: var(--notify); color: white; font-size: 0.75rem; font-weight: bold; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
 
-        /* Kanban Layout */
         .kanban-grid { display: grid; grid-template-columns: 1fr; gap: 24px; }
         @media(min-width: 768px) { .kanban-grid { grid-template-columns: 1fr 1fr; } }
         .zone-title { font-size: 1.2rem; font-weight: bold; border-bottom: 2px solid var(--border); padding-bottom: 8px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
         .drop-zone.drag-over { border-style: dashed; border-color: var(--success); }
         
-        /* Tasks */
         .task-card { background: var(--bg-color); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 12px; border-left: 4px solid var(--border); cursor: grab; transition: 0.2s; }
         .task-card:active { cursor: grabbing; transform: scale(0.98); }
-        .task-card.in-pool { border-left-color: var(--text-muted); }
-        .task-card.in-focus { border-left-color: var(--accent); }
         .task-card.is-done { border-left-color: var(--success); opacity: 0.6; }
         .drag-handle { color: var(--text-muted); opacity: 0.5; margin-right: 8px; cursor: grab; }
-        .badge { font-size: 0.8rem; background: var(--surface); border: 1px solid var(--border); padding: 2px 8px; border-radius: 12px; color: var(--text-muted); font-weight: bold;}
         
-        /* Library List */
+        .badge { font-size: 0.8rem; background: var(--surface); border: 1px solid var(--border); padding: 4px 8px; border-radius: 12px; color: var(--text-muted); font-weight: bold;}
+        .date-badge-hover:hover { text-decoration: underline dashed; color: var(--text-main); }
+        
+        .badge-pool { background: #e0f2fe; color: #0369a1; border-color: #bae6fd; }
+        [data-theme="dark"] .badge-pool { background: #0c4a6e; color: #bae6fd; border-color: #0284c7; }
+        
+        .badge-past { background: #fffbeb; color: #d97706; border-color: #fcd34d; }
+        [data-theme="dark"] .badge-past { background: #451a03; color: #fde68a; border-color: #b45309; }
+        
+        .strategy-box { background: #e0f2fe; border-left: 4px solid #0369a1; padding: 16px; border-radius: 8px; margin-top: 16px; color: #0c4a6e; }
+        [data-theme="dark"] .strategy-box { background: #082f49; color: #bae6fd; }
+        
         .lib-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; background: var(--bg-color); }
         .hidden { display: none !important; }
+        
+        #toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--success); color: white; padding: 12px 24px; border-radius: 30px; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.2); opacity: 0; pointer-events: none; transition: 0.3s; z-index: 9999; }
+        #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
     </style>
 </head>
 <body>
 <div class="container">
     <div class="header-bar">
-        <h1>🎓 Assessment Planner</h1>
+        <!-- V6.0 TAG SO WE KNOW THE CACHE CLEARED! -->
+        <h1>🎓 Assessment Planner 6.0</h1>
         <div style="display: flex; gap: 8px; flex-wrap: wrap;">
             <button onclick="App.changeTextSize(-1)" title="Make text smaller">A-</button>
             <button onclick="App.changeTextSize(1)" title="Make text larger">A+</button>
             <button onclick="App.cycleTheme()" title="Change colours">🌓 Theme</button>
-            <button onclick="App.toggleLibrary()" title="Save and switch between different assignments">📚 Library</button>
+            <button onclick="App.toggleLibrary()" title="Switch between assignments">📚 My Plans</button>
             <button onclick="App.exportICS()" title="Download as a calendar file">📅 Export</button>
-            <button onclick="App.newPlan()" class="primary" title="Load a new plan from the AI">➕ Load</button>
+            <button onclick="App.newPlan()" class="primary" title="Load a new plan from the AI">➕ Load Plan</button>
         </div>
     </div>
+    
+    <div id="toast">Update successful!</div>
 
-    <!-- LIBRARY PANEL -->
     <div id="library-panel" class="bento-box hidden" style="border: 2px solid var(--accent);">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-            <h3 style="margin:0; color: var(--accent);">📚 Assessment Library</h3>
-            <button class="primary" onclick="App.saveCurrentToLibrary()">💾 Save Current Plan</button>
+            <h3 style="margin:0; color: var(--accent);">📚 My Plans</h3>
         </div>
-        <p style="font-size: 0.9rem; color: var(--text-muted);">Save up to 5 plans so you can manage multiple assignments at once.</p>
+        <p style="font-size: 0.9rem; color: var(--text-muted);">Switch between your different assignments here. Loading a new plan from the AI automatically saves it here.</p>
         <div id="library-list"></div>
     </div>
 
@@ -89,19 +100,21 @@
         <h3 style="margin-top:0;">Update or Load Plan</h3>
         <p>Paste the code from your AI Coach below.</p>
         <textarea id="json-input" placeholder="Paste your generated ```json code block here..."></textarea>
-        <button class="primary" onclick="App.loadPlan()">Load / Update Plan</button>
-        <div id="status-msg" style="color: var(--danger); margin-top: 10px; font-weight: bold;"></div>
+        <button class="primary" onclick="App.loadPlan()" style="font-size: 1.1rem; padding: 12px 24px;">Load / Update Plan</button>
+        
+        <!-- STATUS MESSAGE BOX -->
+        <div id="status-msg" style="display: none; margin-top: 16px; font-weight: bold; padding: 16px; border-radius: 8px;"></div>
     </div>
 
     <div id="app-content" class="hidden">
-        <!-- HEADER & PROGRESS -->
         <div class="bento-box" style="margin-bottom: 24px;">
             <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px;">
-                <div>
+                <div style="flex: 1;">
                     <h2 id="plan-title" style="color: var(--accent); margin-bottom: 4px;">Study Plan</h2>
                     <p id="plan-due" style="margin: 0; color: var(--text-muted); font-weight: bold;"></p>
+                    <div id="strategy-container"></div>
                 </div>
-                <div style="min-width: 250px; flex-grow: 1; text-align: right;">
+                <div style="min-width: 250px; text-align: right;">
                     <strong style="color: var(--text-main);">Progress: <span id="progress-text">0%</span></strong>
                     <div class="progress-wrapper" title="Your overall completion progress">
                         <div id="progress-bar" class="progress-fill"></div>
@@ -110,25 +123,24 @@
             </div>
         </div>
 
-        <!-- 7-DAY CALENDAR FILTER -->
-        <h3 style="font-size: 1rem; color: var(--text-muted); margin-bottom: 8px;">📅 The 7-Day Horizon</h3>
-        <div class="calendar-strip" id="calendar-strip" title="Click a day to view its tasks, or drop a task here to schedule it"></div>
+        <h3 style="font-size: 1rem; color: var(--text-muted); margin-bottom: 8px;">📅 Project Timeline</h3>
+        <div class="calendar-strip" id="calendar-strip" title="Scroll sideways to see all days until your deadline!"></div>
         <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0; margin-bottom: 24px; font-style: italic;">
-            Click a day to view its tasks, or drag a task onto a day to schedule it!
+            Tip: Days with <span style="color: var(--notify); font-weight: bold;">purple badges</span> have tasks hidden inside them! Click a day to view its tasks, or drag a task onto a day to reschedule it.
         </p>
 
-        <!-- KANBAN BOARD -->
         <div class="kanban-grid">
-            <div class="bento-box drop-zone" ondragover="DnD.over(event)" ondragleave="DnD.leave(event)" ondrop="DnD.drop(event, 'pool')" title="Drop tasks here to unschedule them">
-                <div class="zone-title">📋 Task Pool</div>
+            <div class="bento-box drop-zone" ondragover="DnD.over(event)" ondragleave="DnD.leave(event)" ondrop="DnD.drop(event, 'pool')" title="Drop tasks here to completely unschedule them">
+                <div class="zone-title">📋 Unscheduled & Past Tasks</div>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0;">Tasks that need a date, or slipped past their original date, wait safely here.</p>
                 <div id="col-pool"></div>
             </div>
 
             <div>
-                <div class="bento-box zone-focus drop-zone" ondragover="DnD.over(event)" ondragleave="DnD.leave(event)" ondrop="DnD.drop(event, 'focus')" style="border: 2px solid var(--accent);" title="Drop tasks here to schedule them for this day">
+                <div class="bento-box zone-focus drop-zone" ondragover="DnD.over(event)" ondragleave="DnD.leave(event)" ondrop="DnD.drop(event, 'focus')" style="border: 2px solid var(--accent);">
                     <div class="zone-title" style="color: var(--accent);"><span id="focus-title">🎯 Today's Focus</span></div>
                     <div id="col-focus"></div>
-                    <p id="empty-focus" style="font-size: 0.9rem; color: var(--text-muted); font-style: italic;"></p>
+                    <div id="empty-focus"></div>
                 </div>
 
                 <div class="bento-box drop-zone" ondragover="DnD.over(event)" ondragleave="DnD.leave(event)" ondrop="DnD.drop(event, 'done')">
@@ -144,8 +156,6 @@
 </div>
 
 <script>
-window.onerror = function(msg) { alert("Error: " + msg); return true; };
-
 var U = {
     id: function(s) { return document.getElementById(s) },
     escape: function(s) { return String(s || '').replace(/[&<>"']/g, function(c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c] }) },
@@ -155,13 +165,39 @@ var U = {
         if(!dateStr) return "Unscheduled";
         try { var p = dateStr.split('-'); if(p.length !== 3) return dateStr; return p[2] + '.' + p[1] + '.' + p[0]; } catch(e) { return dateStr; }
     },
-    getDaysMap: function() {
-        var days = [], today = new Date();
+    getDaysMap: function(dueDateStr, tasksData) {
+        var days = [];
+        var today = new Date(); today.setHours(0,0,0,0);
+        var end = new Date(today); end.setDate(today.getDate() + 14); 
+        
+        if (dueDateStr) {
+            try {
+                var p = dueDateStr.split('-');
+                if(p.length === 3) {
+                    var dDate = new Date(+p[0], +p[1]-1, +p[2]);
+                    if(dDate > today) { end = new Date(dDate); end.setDate(end.getDate() + 4); } 
+                }
+            } catch(e) {}
+        }
+        
+        var diffTime = Math.abs(end - today);
+        var diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        if(diffDays > 120) diffDays = 120; 
+
+        var taskCounts = {};
+        if (tasksData && Array.isArray(tasksData.stages)) {
+            tasksData.stages.forEach(s => {
+                if (Array.isArray(s.tasks)) s.tasks.forEach(t => {
+                    if (t.due && t.due >= U.getTodayStr() && t.status !== 'done') taskCounts[t.due] = (taskCounts[t.due] || 0) + 1;
+                });
+            });
+        }
         var dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-        for(var i=0; i<7; i++) {
+        for(var i=0; i<=diffDays; i++) {
             var d = new Date(today); d.setDate(today.getDate() + i);
             var yyyy = d.getFullYear(), mm = String(d.getMonth()+1).padStart(2,'0'), dd = String(d.getDate()).padStart(2,'0');
-            days.push({ name: i===0 ? 'Today' : dayNames[d.getDay()], dateStr: `${yyyy}-${mm}-${dd}`, display: `${dd}.${mm}` });
+            var dStr = `${yyyy}-${mm}-${dd}`;
+            days.push({ id: `cal-day-${dStr}`, name: (i===0) ? 'Today' : dayNames[d.getDay()], dateStr: dStr, display: `${dd}.${mm}`, count: taskCounts[dStr] || 0 });
         }
         return days;
     }
@@ -169,236 +205,320 @@ var U = {
 
 var DnD = {
     draggedId: null,
-    start: function(e, id) { this.draggedId = id; e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', id); setTimeout(()=> e.target.style.opacity='0.4', 0); },
-    end: function(e) { e.target.style.opacity = '1'; this.draggedId = null; document.querySelectorAll('.drop-zone, .cal-day').forEach(z => z.classList.remove('drag-over')); },
+    start: function(e, id) { this.draggedId = id; e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', id); setTimeout(()=> { if(e.target) e.target.style.opacity='0.4'; }, 0); },
+    end: function(e) { if(e.target) e.target.style.opacity = '1'; this.draggedId = null; document.querySelectorAll('.drop-zone, .cal-day').forEach(z => z.classList.remove('drag-over')); },
     over: function(e) { e.preventDefault(); e.currentTarget.classList.add('drag-over'); },
     leave: function(e) { e.currentTarget.classList.remove('drag-over'); },
     drop: function(e, dropZone) { 
         e.preventDefault(); e.currentTarget.classList.remove('drag-over'); 
-        var id = e.dataTransfer.getData('text/plain') || this.draggedId; 
-        if(!id) return;
-        if(dropZone === 'pool') App.changeStatusAndDate(id, 'pending', null);
+        var id = e.dataTransfer.getData('text/plain') || this.draggedId; if(!id) return;
+        if(dropZone === 'pool') App.changeStatusAndDate(id, 'pending', 'CLEAR');
         else if(dropZone === 'focus') App.changeStatusAndDate(id, 'pending', App.selectedDate);
-        else if(dropZone === 'done') App.changeStatusAndDate(id, 'done', undefined); 
+        else if(dropZone === 'done') App.changeStatusAndDate(id, 'done', 'KEEP'); 
     },
     dropCalendar: function(e, dateStr) {
         e.preventDefault(); e.currentTarget.classList.remove('drag-over');
         var id = e.dataTransfer.getData('text/plain') || this.draggedId; 
-        if(id) App.changeStatusAndDate(id, 'pending', dateStr);
+        if(id) { App.changeStatusAndDate(id, 'pending', dateStr); App.selectDate(dateStr); }
     }
 };
 
 var App = {
-    data: null, showDone: false, manualReveals: 0,
-    selectedDate: U.getTodayStr(), zoomLevel: 0,
-    themes: ['light', 'dark', 'hc'], currentThemeIdx: 0,
-
+    data: null, showDone: false, manualReveals: 0, selectedDate: U.getTodayStr(), zoomLevel: 0, themes: ['light', 'dark', 'hc'], currentThemeIdx: 0,
+    
     init: function() {
-        var savedTheme = localStorage.getItem('plannerThemeIdx');
-        if(savedTheme) { this.currentThemeIdx = parseInt(savedTheme); this.applyTheme(); }
-        var savedZoom = localStorage.getItem('plannerZoom');
-        if(savedZoom) { this.zoomLevel = parseInt(savedZoom); this.applyTextSize(); }
-        
-        var saved = localStorage.getItem('plannerData4.2'); // Kept same key so it doesn't lose data
-        if (saved) { this.data = JSON.parse(saved); this.render(); }
-        else { this.renderCalendar(); }
+        var savedTheme = localStorage.getItem('plannerThemeIdx'); if(savedTheme) { this.currentThemeIdx = parseInt(savedTheme); this.applyTheme(); }
+        var savedZoom = localStorage.getItem('plannerZoom'); if(savedZoom) { this.zoomLevel = parseInt(savedZoom); this.applyTextSize(); }
+        var saved = localStorage.getItem('plannerData6.0'); 
+        if (saved) { try { this.data = JSON.parse(saved); this.render(); } catch(e) { this.renderCalendar(); } } else { this.renderCalendar(); }
     },
     
     changeTextSize: function(delta) { this.zoomLevel = Math.max(-2, Math.min(4, this.zoomLevel + delta)); this.applyTextSize(); localStorage.setItem('plannerZoom', this.zoomLevel); },
     applyTextSize: function() { document.documentElement.style.fontSize = (16 + (this.zoomLevel * 2)) + 'px'; },
     cycleTheme: function() { this.currentThemeIdx = (this.currentThemeIdx + 1) % this.themes.length; this.applyTheme(); localStorage.setItem('plannerThemeIdx', this.currentThemeIdx); },
     applyTheme: function() { var t = this.themes[this.currentThemeIdx]; document.documentElement.setAttribute('data-theme', t === 'light' ? '' : t); },
-
-    newPlan: function() { U.id('app-content').classList.add('hidden'); U.id('ingest-box').classList.remove('hidden'); U.id('json-input').value = ''; U.id('library-panel').classList.add('hidden');},
-    toggleDone: function() { this.showDone = !this.showDone; U.id('col-done').classList.toggle('hidden', !this.showDone); U.id('btn-toggle-done').textContent = this.showDone ? "🙈 Hide" : "👀 Show"; },
-    unlockNext: function() { this.manualReveals++; this.render(); },
-    selectDate: function(dateStr) { this.selectedDate = dateStr; this.render(); },
-
-    // --- LIBRARY LOGIC ---
-    toggleLibrary: function() {
-        var panel = U.id('library-panel');
-        panel.classList.toggle('hidden');
-        if(!panel.classList.contains('hidden')) this.renderLibrary();
+    
+    newPlan: function() { 
+        var c = U.id('app-content'); if(c) c.classList.add('hidden'); 
+        var i = U.id('ingest-box'); if(i) i.classList.remove('hidden'); 
+        var j = U.id('json-input'); if(j) j.value = ''; 
+        var l = U.id('library-panel'); if(l) l.classList.add('hidden');
+        var sm = U.id('status-msg'); if(sm) sm.style.display = 'none';
     },
+    
+    toggleDone: function() { 
+        this.showDone = !this.showDone; 
+        var d = U.id('col-done'); if(d) d.classList.toggle('hidden', !this.showDone); 
+        var b = U.id('btn-toggle-done'); if(b) b.textContent = this.showDone ? "🙈 Hide" : "👀 Show"; 
+    },
+    
+    unlockNext: function() { this.manualReveals++; this.render(); },
+    
+    selectDate: function(dateStr) { 
+        this.selectedDate = dateStr; 
+        this.render(); 
+        setTimeout(() => { var el = U.id('cal-day-' + dateStr); if(el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' }); }, 50);
+    },
+    
+    showToast: function(msg) {
+        var t = U.id('toast'); if(!t) return;
+        t.textContent = msg; t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 2500);
+    },
+
+    toggleLibrary: function() { var panel = U.id('library-panel'); if(!panel) return; panel.classList.toggle('hidden'); if(!panel.classList.contains('hidden')) this.renderLibrary(); },
     getLibrary: function() { return JSON.parse(localStorage.getItem('plannerLibraryData') || '[]'); },
-    saveCurrentToLibrary: function() {
-        if(!this.data) return alert("No active plan to save!");
-        var lib = this.getLibrary();
-        var name = this.data.assignment || "Untitled Plan";
-        // Remove old version if it exists
+    
+    saveCurrentToLibrary: function(silent) {
+        if(!this.data) return;
+        var lib = this.getLibrary(); var name = this.data.assignment || "Untitled Plan";
         lib = lib.filter(e => e.name !== name);
-        var entry = { id: U.uuid(), name: name, savedAt: Date.now(), data: this.data };
-        lib.unshift(entry);
+        lib.unshift({ id: U.uuid(), name: name, savedAt: Date.now(), data: this.data });
         if(lib.length > 5) lib.pop();
         localStorage.setItem('plannerLibraryData', JSON.stringify(lib));
-        this.renderLibrary();
-        alert("Plan saved successfully!");
+        this.renderLibrary(); 
+        if(!silent) this.showToast("Plan saved to Library!");
     },
+    
     loadFromLibrary: function(id) {
-        var lib = this.getLibrary();
-        var entry = lib.find(e => e.id === id);
-        if(entry) {
-            this.data = entry.data;
-            this.manualReveals = 0;
-            this.save();
-            U.id('library-panel').classList.add('hidden');
-            U.id('ingest-box').classList.add('hidden');
-            this.render();
-        }
+        var lib = this.getLibrary(); var entry = lib.find(e => e.id === id);
+        if(entry) { this.data = entry.data; this.manualReveals = 0; this.save(); var lp=U.id('library-panel'); if(lp) lp.classList.add('hidden'); var ib=U.id('ingest-box'); if(ib) ib.classList.add('hidden'); this.render(); this.showToast("Plan Loaded!");}
     },
+    
     deleteFromLibrary: function(id) {
-        if(!confirm("Are you sure you want to delete this saved plan?")) return;
+        var btn = U.id('del-btn-' + id);
+        if(btn.innerText === '🗑️') {
+            btn.innerText = 'Sure?'; btn.style.background = 'var(--danger)'; btn.style.color = 'white';
+            setTimeout(() => { if(btn) { btn.innerText = '🗑️'; btn.style.background='transparent'; btn.style.color='var(--danger)'; } }, 3000);
+            return;
+        }
         var lib = this.getLibrary().filter(e => e.id !== id);
-        localStorage.setItem('plannerLibraryData', JSON.stringify(lib));
-        this.renderLibrary();
+        localStorage.setItem('plannerLibraryData', JSON.stringify(lib)); this.renderLibrary(); this.showToast("Plan Deleted!");
     },
+    
     renderLibrary: function() {
-        var lib = this.getLibrary();
-        var html = '';
-        if(lib.length === 0) {
-            html = '<p style="color:var(--text-muted); font-style:italic;">No plans saved yet.</p>';
-        } else {
+        var lib = this.getLibrary(); var html = '';
+        if(lib.length === 0) { html = '<p style="color:var(--text-muted); font-style:italic;">No plans saved yet. Loading a plan auto-saves it here.</p>'; } 
+        else {
             lib.forEach(p => {
                 var d = new Date(p.savedAt).toLocaleDateString('en-NZ');
                 html += `<div class="lib-item">
                     <div><strong style="color:var(--accent);">${U.escape(p.name)}</strong><br><small style="color:var(--text-muted)">Saved: ${d}</small></div>
-                    <div style="display:flex; gap:8px;">
-                        <button onclick="App.loadFromLibrary('${p.id}')">📂 Load</button>
-                        <button onclick="App.deleteFromLibrary('${p.id}')" style="color:var(--danger); border-color:var(--danger);">🗑️</button>
-                    </div>
+                    <div style="display:flex; gap:8px;"><button onclick="App.loadFromLibrary('${p.id}')">📂 Load</button><button id="del-btn-${p.id}" onclick="App.deleteFromLibrary('${p.id}')" style="color:var(--danger); border-color:var(--danger);">🗑️</button></div>
                 </div>`;
             });
         }
-        U.id('library-list').innerHTML = html;
+        var ll = U.id('library-list'); if(ll) ll.innerHTML = html;
     },
 
     loadPlan: function() {
-        U.id('status-msg').textContent = "";
-        var input = U.id('json-input').value;
-        if (!input.trim()) return U.id('status-msg').textContent = "Please paste the code.";
+        var sm = U.id('status-msg');
+        var input = U.id('json-input') ? U.id('json-input').value : "";
         
-        try {
-            var raw = input, match = raw.match(/```(?:json)?\s*([\s\S]*?)\s*```/i), clean = match ? match[1] : raw;
-            var first = clean.indexOf('{'), last = clean.lastIndexOf('}');
-            if (first !== -1 && last !== -1) clean = clean.substring(first, last + 1);
-            var parsed = JSON.parse(clean.replace(/,(\s*[\]}])/g, '$1').trim());
-            
-            if(parsed.stages) parsed.stages.sort((a,b) => (parseInt((a.name||a.title||"").replace(/\D/g, ''))||0) - (parseInt((b.name||b.title||"").replace(/\D/g, ''))||0));
+        if (!input.trim()) { 
+            if(sm) { sm.style.display = 'block'; sm.style.background = '#fee2e2'; sm.style.color = '#991b1b'; sm.innerHTML = "❌ Please paste the code in the box first."; }
+            return; 
+        }
+        
+        // Show "Processing" indicator instantly so user knows the button click actually worked!
+        if(sm) {
+            sm.style.display = 'block';
+            sm.style.background = '#e0f2fe';
+            sm.style.color = '#0369a1';
+            sm.innerHTML = "⏳ Processing your plan... Please wait.";
+        }
+        
+        // Use timeout to let the UI update before parsing blocks the browser
+        setTimeout(() => {
+            try {
+                var raw = input;
+                
+                // Bulletproof String Sanitizer
+                raw = raw.replace(/[\u200B-\u200D\uFEFF]/g, ''); 
+                raw = raw.replace(/[\u2018\u2019]/g, "'").replace(/[\u201C\u201D]/g, '"');
+                
+                // Pure bracket extraction (Bypasses all markdown issues)
+                var first = raw.indexOf('{');
+                var last = raw.lastIndexOf('}');
+                if (first === -1 || last === -1) throw new Error("No JSON found. Make sure you copied the curly brackets { }.");
+                
+                var clean = raw.substring(first, last + 1);
+                var parsed = JSON.parse(clean.replace(/,(\s*[\]}])/g, '$1').trim());
+                
+                parsed.assignment = parsed.assignment || parsed.assignmentTitle || parsed.title || "Study Plan";
+                parsed.dueDate = parsed.dueDate || parsed.deadline || null;
+                parsed.customStrategy = parsed.customStrategy || parsed.coachNotes || "";
+                
+                if(!parsed.stages || !Array.isArray(parsed.stages)) throw new Error("The AI forgot to include the 'stages' array in the plan.");
 
-            if (this.data && this.data.stages) {
-                parsed.stages.forEach(newStage => {
-                    if(newStage.tasks) newStage.tasks.forEach(newTask => {
-                        newTask.id = U.uuid(); newTask.status = 'pending'; newTask.due = null; 
-                        this.data.stages.forEach(oldStage => {
-                            if(oldStage.tasks) oldStage.tasks.forEach(oldTask => {
-                                if (oldTask.name === newTask.name) { newTask.status = oldTask.status; newTask.id = oldTask.id; newTask.due = oldTask.due; }
+                parsed.stages.forEach(s => { 
+                    s.title = s.title || s.name || s.stageTitle || "Unnamed Stage"; 
+                    if(Array.isArray(s.tasks)) { 
+                        s.tasks.forEach(t => { 
+                            t.name = t.name || t.taskTitle || t.title || t.description || "Unnamed Task"; 
+                            t.due = t.due || t.firstDraftDueDate || t.dueDate || t.date || null; 
+                        }); 
+                    } 
+                });
+                parsed.stages.sort((a,b) => (parseInt(String(a.title).replace(/\D/g, ''))||0) - (parseInt(String(b.title).replace(/\D/g, ''))||0));
+                
+                // SMART MERGE
+                if (this.data && Array.isArray(this.data.stages)) {
+                    parsed.stages.forEach(newStage => {
+                        if(Array.isArray(newStage.tasks)) newStage.tasks.forEach(newTask => {
+                            newTask.id = U.uuid(); newTask.status = 'pending'; newTask.due = newTask.due || null; 
+                            this.data.stages.forEach(oldStage => {
+                                if(Array.isArray(oldStage.tasks)) oldStage.tasks.forEach(oldTask => { 
+                                    if (oldTask.name === newTask.name) { newTask.status = oldTask.status; newTask.id = oldTask.id; newTask.due = oldTask.due; } 
+                                });
                             });
                         });
                     });
+                } else { 
+                    parsed.stages.forEach(s => { if(Array.isArray(s.tasks)) s.tasks.forEach(t => { t.id = U.uuid(); t.status = 'pending'; t.due = t.due || null; })}); 
+                }
+                
+                this.data = parsed; this.manualReveals = 0; 
+                
+                // SMART JUMP
+                var earliestDate = null;
+                var todayStr = U.getTodayStr();
+                this.data.stages.forEach(s => {
+                    if (Array.isArray(s.tasks)) s.tasks.forEach(t => {
+                        if (t.due && t.due >= todayStr && (!earliestDate || t.due < earliestDate)) { earliestDate = t.due; }
+                    });
                 });
-            } else {
-                if(parsed.stages) parsed.stages.forEach(s => { if(s.tasks) s.tasks.forEach(t => { t.id = U.uuid(); t.status = 'pending'; t.due = t.due || null; })});
+                this.selectedDate = earliestDate ? earliestDate : todayStr;
+                
+                localStorage.setItem('plannerData6.0', JSON.stringify(this.data)); 
+                var ib = U.id('ingest-box'); if(ib) ib.classList.add('hidden'); 
+                if(sm) sm.style.display = 'none';
+                
+                this.saveCurrentToLibrary(true); 
+                this.render();
+                this.showToast("Plan Loaded successfully!");
+                
+            } catch(err) { 
+                if(sm) {
+                    sm.style.background = '#fee2e2';
+                    sm.style.color = '#991b1b';
+                    sm.innerHTML = `❌ <strong>Error reading the plan:</strong> ${err.message}<br><small style="font-weight: normal; margin-top:8px; display:block;">Make sure you highlighted the entire code block. If you are on an iPad, ensure it didn't change standard quotes into curly "Smart Quotes".</small>`;
+                }
             }
-            
-            this.data = parsed; this.manualReveals = 0;
-            localStorage.setItem('plannerData4.2', JSON.stringify(this.data));
-            U.id('ingest-box').classList.add('hidden'); this.render();
-            
-        } catch(err) { U.id('status-msg').textContent = "Could not read the JSON. Did you copy the whole block?"; }
+        }, 50); // 50ms delay lets the "Processing..." banner appear
     },
     
     changeStatusAndDate: function(id, newStatus, newDate) {
         if(!this.data) return;
+        var actionMsg = "";
         this.data.stages.forEach(s => { if(s.tasks) s.tasks.forEach(t => { 
-            if(t.id === id) { t.status = newStatus; if(newDate !== undefined) t.due = newDate; }
+            if(t.id === id) { 
+                if(newStatus !== 'KEEP') { t.status = newStatus; if(newStatus === 'done') actionMsg = "Task Completed! 🎉"; }
+                if(newDate === 'CLEAR') { t.due = null; actionMsg = "Moved to Unscheduled Pool"; }
+                else if(newDate !== 'KEEP' && newDate !== null && newDate !== undefined) { t.due = newDate; actionMsg = "Scheduled for " + U.fmtNZ(newDate); }
+            } 
         })});
+        if(actionMsg) this.showToast(actionMsg);
         this.save();
     },
-    save: function() { localStorage.setItem('plannerData4.2', JSON.stringify(this.data)); this.render(); },
+    
+    save: function() { localStorage.setItem('plannerData6.0', JSON.stringify(this.data)); this.render(); },
     
     renderCalendar: function() {
-        var days = U.getDaysMap();
-        var html = '';
-        var selectedName = "Today";
+        var dueDate = this.data ? this.data.dueDate : null;
+        var days = U.getDaysMap(dueDate, this.data); 
+        var html = ''; var selectedName = "Today";
+        
         days.forEach(d => {
-            var isActive = d.dateStr === this.selectedDate;
+            var isActive = d.dateStr === this.selectedDate; 
             if(isActive) selectedName = d.name;
-            html += `<div class="cal-day drop-zone ${isActive ? 'active' : ''}" onclick="App.selectDate('${d.dateStr}')" ondragenter="DnD.over(event)" ondragover="DnD.over(event)" ondragleave="DnD.leave(event)" ondrop="DnD.dropCalendar(event, '${d.dateStr}')" title="Click to view tasks, or drop a task to reschedule it to ${d.name}">
-                        <span class="day-name">${d.name}</span>
-                        <span class="day-date">${d.display}</span>
+            var badgeHtml = d.count > 0 ? `<div class="cal-badge">${d.count}</div>` : '';
+            html += `<div id="${d.id}" class="cal-day drop-zone ${isActive ? 'active' : ''}" onclick="App.selectDate('${d.dateStr}')" ondragenter="DnD.over(event)" ondragover="DnD.over(event)" ondragleave="DnD.leave(event)" ondrop="DnD.dropCalendar(event, '${d.dateStr}')" title="Click to view tasks, or drop a task to schedule it">
+                        ${badgeHtml}
+                        <span class="day-name">${d.name}</span><span class="day-date">${d.display}</span>
                      </div>`;
         });
-        U.id('calendar-strip').innerHTML = html;
-        U.id('focus-title').innerHTML = `🎯 ${selectedName}'s Focus`;
-        U.id('empty-focus').textContent = `No tasks assigned to ${selectedName} yet. Drag one here!`;
+        
+        var cs = U.id('calendar-strip'); if(cs) cs.innerHTML = html; 
+        var ft = U.id('focus-title'); if(ft) ft.innerHTML = `🎯 Focus for ${selectedName}`; 
     },
 
     render: function() {
-        this.renderCalendar();
-        U.id('app-content').classList.remove('hidden');
-        U.id('plan-title').textContent = this.data.assignment || "Study Plan";
-        U.id('plan-due').textContent = this.data.dueDate ? "🎯 Final Deadline: " + U.fmtNZ(this.data.dueDate) : "";
+        this.renderCalendar(); 
+        var ac = U.id('app-content'); if(ac) ac.classList.remove('hidden'); 
+        var pt = U.id('plan-title'); if(pt) pt.textContent = this.data.assignment || "Study Plan"; 
+        var pd = U.id('plan-due'); if(pd) pd.textContent = this.data.dueDate ? "🎯 Final Deadline: " + U.fmtNZ(this.data.dueDate) : "";
         
-        var htmlPool = '', htmlFocus = '', htmlDone = '';
-        var focusCount = 0, totalTasks = 0, completedTasks = 0;
-        
-        var visiblePoolCount = 0, allowedPoolCount = 1 + this.manualReveals, lockedCount = 0;
+        var sc = U.id('strategy-container');
+        if(sc) { if(this.data.customStrategy) { sc.innerHTML = `<div class="strategy-box">🧠 <strong>Your Strategy:</strong> ${U.escape(this.data.customStrategy)}</div>`; } else { sc.innerHTML = ""; } }
 
-        this.data.stages.forEach((stage, sIdx) => {
-            var stageHeaderTitle = `Stage ${sIdx + 1}: ${U.escape(stage.title || stage.name)}`;
+        var htmlPool = '', htmlFocus = '', htmlDone = ''; var focusCount = 0, poolCount = 0, totalTasks = 0, completedTasks = 0;
+        var todayStr = U.getTodayStr();
+
+        if(Array.isArray(this.data.stages)) this.data.stages.forEach((stage, sIdx) => {
+            var stageHeaderTitle = `Stage ${sIdx + 1}: ${U.escape(stage.title || stage.name)}`; 
             var poolHtmlForStage = '';
             
-            if(stage.tasks) stage.tasks.forEach(t => {
-                totalTasks++;
-                if (t.status === 'done') completedTasks++;
-
-                var dateTxt = U.fmtNZ(t.due);
-                var isFocus = (t.status === 'pending' && t.due === this.selectedDate);
-                var isPool = (t.status === 'pending' && t.due !== this.selectedDate);
+            if(Array.isArray(stage.tasks)) stage.tasks.forEach(t => {
+                totalTasks++; if (t.status === 'done') completedTasks++;
                 
+                var isUnscheduled = (!t.due || t.due === '');
+                var isPast = (t.due && t.due < todayStr && t.status !== 'done');
+                var isPool = (isUnscheduled || isPast) && t.status !== 'done';
+                var isFocus = (!isPool && t.due === this.selectedDate && t.status !== 'done');
+                
+                var dateTxt = U.fmtNZ(t.due);
+                if (isPast) dateTxt += " (Past)"; 
+
+                var badgeClass = isPast ? "badge badge-past" : (isPool ? "badge badge-pool" : "badge");
+                
+                var dateInputHtml = `<div style="position: relative; display: inline-block;">
+                    <span class="${badgeClass} date-badge-hover" title="Click to pick a specific date from a calendar!" style="cursor:pointer;">📅 ${dateTxt} ▾</span>
+                    <input type="date" value="${t.due || ''}" onchange="App.changeStatusAndDate('${t.id}', 'KEEP', this.value)" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;">
+                </div>`;
+
                 var card = `<div class="task-card ${isFocus ? 'in-focus' : (t.status==='done'?'is-done':'in-pool')}" draggable="true" ondragstart="DnD.start(event, '${t.id}')" ondragend="DnD.end(event)">
                     <div style="font-weight:bold; margin-bottom:8px;"><span class="drag-handle" title="Click and drag to move this task">⋮⋮</span>${U.escape(t.name)}</div>
                     <div style="display:flex; gap:8px; margin-bottom:12px;">
-                        <span class="badge" title="Drag this card to a calendar day to change its date!" style="${isPool?'background:#e0f2fe; color:#0369a1; border-color:#bae6fd;':''}">📅 ${dateTxt}</span>
+                        ${dateInputHtml}
                         <span class="badge">⏳ ~45m</span>
                     </div>
                     ${t.hint ? `<div style="font-size:0.9rem; color:var(--text-muted); background:var(--surface); padding:8px; border-radius:6px; border-left:3px solid var(--accent);">💡 ${U.escape(t.hint)}</div>` : ''}
                     <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">`;
                 
                 if (isPool) { 
-                    card += `<button onclick="App.changeStatusAndDate('${t.id}', 'pending', App.selectedDate)" title="Move to currently selected calendar day">Move to ${U.id('focus-title').innerText.replace('🎯 ', '').split("'")[0]} ➔</button></div></div>`; 
-                    if (visiblePoolCount < allowedPoolCount) { poolHtmlForStage += card; visiblePoolCount++; } else { lockedCount++; }
+                    var ftObj = U.id('focus-title'); var targetName = ftObj ? ftObj.innerText.replace('🎯 Focus for ', '') : 'Today';
+                    card += `<button onclick="App.changeStatusAndDate('${t.id}', 'KEEP', '${App.selectedDate}')" title="Schedule this for ${targetName}">Move to ${targetName} ➔</button></div></div>`; 
+                    poolHtmlForStage += card; poolCount++;
                 }
                 else if (isFocus) { 
-                    card += `<button class="success" onclick="App.changeStatusAndDate('${t.id}', 'done', undefined)">✅ Mark Done</button> <button onclick="App.changeStatusAndDate('${t.id}', 'pending', null)" style="margin-left:auto;" title="Remove the date and put it back in the pool">↩️ Back to Pool</button></div></div>`; 
+                    card += `<button class="success" onclick="App.changeStatusAndDate('${t.id}', 'done', 'KEEP')">✅ Mark Done</button> <button onclick="App.changeStatusAndDate('${t.id}', 'pending', 'CLEAR')" style="margin-left:auto;" title="Remove the date and put it back in the Unscheduled pool">↩️ Unschedule</button></div></div>`; 
                     htmlFocus += card; focusCount++;
                 }
-                else if (t.status === 'done') { 
-                    card += `<button onclick="App.changeStatusAndDate('${t.id}', 'pending', App.selectedDate)">↩️ Undo</button></div></div>`; 
-                    htmlDone += card; 
-                }
+                else if (t.status === 'done') { card += `<button onclick="App.changeStatusAndDate('${t.id}', 'pending', 'KEEP')">↩️ Undo</button></div></div>`; htmlDone += card; }
             });
-
             if(poolHtmlForStage !== '') htmlPool += `<h4 style="margin-top:20px; color:var(--accent);">${stageHeaderTitle}</h4>${poolHtmlForStage}`;
         });
-
-        if (lockedCount > 0) htmlPool += `<div style="text-align:center; margin-top:20px;"><button onclick="App.unlockNext()" style="width:100%; padding: 12px; border: 2px dashed var(--border); background: transparent; color: var(--text-muted);">🔒 Unlock next step</button></div>`;
-
+        
         var pct = totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100);
-        U.id('progress-text').textContent = pct + '%';
-        U.id('progress-bar').style.width = pct + '%';
-
-        U.id('col-pool').innerHTML = htmlPool || '<p style="text-align:center; padding: 20px; background:var(--surface); border-radius:8px;">🎉 All tasks allocated!</p>';
-        U.id('col-focus').innerHTML = htmlFocus;
-        U.id('empty-focus').style.display = focusCount > 0 ? 'none' : 'block';
-        U.id('col-done').innerHTML = htmlDone || '<p style="color:var(--text-muted);">Nothing completed yet.</p>';
+        var pt = U.id('progress-text'); if(pt) pt.textContent = pct + '%'; 
+        var pb = U.id('progress-bar'); if(pb) pb.style.width = pct + '%';
+        
+        var cp = U.id('col-pool'); if(cp) cp.innerHTML = htmlPool || `<div style="text-align:center; padding:20px; background:var(--bg-color); border:2px dashed var(--border); border-radius:12px; color:var(--text-muted);">🎉 All caught up!<br>You have no unscheduled or past tasks.</div>`;
+        var cf = U.id('col-focus'); if(cf) cf.innerHTML = htmlFocus; 
+        
+        var ef = U.id('empty-focus');
+        if(ef) {
+            ef.innerHTML = focusCount > 0 ? '' : `<div style="text-align:center; padding:20px; background:var(--bg-color); border:2px dashed var(--border); border-radius:12px; color:var(--text-muted);">🌴 Free Day!<br>You have no tasks scheduled for this day.<br><br><strong>Click a day with a <span style="color:var(--notify);">purple badge</span> on the calendar to see upcoming tasks!</strong></div>`;
+            ef.style.display = focusCount > 0 ? 'none' : 'block';
+        }
+        var cd = U.id('col-done'); if(cd) cd.innerHTML = htmlDone || '<p style="color:var(--text-muted);">Nothing completed yet.</p>';
     },
     
     exportICS: function() {
-        if (!this.data) return;
-        var ics = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//AssessmentPlanner//NZ\n";
-        this.data.stages.forEach(s => {
-            if(s.tasks) s.tasks.forEach(t => {
+        if (!this.data) return; var ics = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//AssessmentPlanner//NZ\n";
+        if (Array.isArray(this.data.stages)) this.data.stages.forEach(s => {
+            if(Array.isArray(s.tasks)) s.tasks.forEach(t => {
                 if (!t.due || t.status === 'done') return;
                 try {
                     var p = t.due.split('-'); var dt = p[0] + p[1] + p[2];
@@ -411,8 +531,7 @@ var App = {
             });
         });
         ics += "END:VCALENDAR";
-        var blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
-        var link = document.createElement('a'); link.href = window.URL.createObjectURL(blob);
+        var blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' }); var link = document.createElement('a'); link.href = window.URL.createObjectURL(blob);
         link.download = "StudyPlan.ics"; document.body.appendChild(link); link.click(); document.body.removeChild(link);
     }
 };
