@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Assessment Planner 6.0</title>
+    <title>Assessment Planner 6.1</title>
     <style>
         :root { --bg-color: #f8fafc; --surface: #ffffff; --text-main: #0f172a; --text-muted: #64748b; --border: #e2e8f0; --accent: #3b82f6; --success: #10b981; --danger: #ef4444; --notify: #8b5cf6; --warning: #f59e0b; }
         [data-theme="dark"] { --bg-color: #0f172a; --surface: #1e293b; --text-main: #f8fafc; --text-muted: #94a3b8; --border: #334155; --accent: #60a5fa; --notify: #a78bfa; --warning: #fbbf24; }
@@ -27,7 +27,7 @@
         .progress-wrapper { background: var(--bg-color); border: 1px solid var(--border); height: 16px; border-radius: 8px; overflow: hidden; margin-top: 12px; }
         .progress-fill { background: var(--success); height: 100%; width: 0%; transition: width 0.5s ease-out; }
         
-        .calendar-strip { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 16px; margin-bottom: 8px; scroll-behavior: smooth; }
+        .calendar-strip { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 16px; margin-bottom: 8px; padding-top: 12px; scroll-behavior: smooth; }
         .calendar-strip::-webkit-scrollbar { height: 10px; }
         .calendar-strip::-webkit-scrollbar-track { background: var(--bg-color); border-radius: 8px; }
         .calendar-strip::-webkit-scrollbar-thumb { background: var(--border); border-radius: 8px; }
@@ -40,7 +40,7 @@
         .cal-day.active .day-name { color: var(--accent); }
         .cal-day .day-date { font-size: 0.8rem; color: var(--text-muted); }
         
-        .cal-badge { position: absolute; top: -8px; right: -8px; background: var(--notify); color: white; font-size: 0.75rem; font-weight: bold; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .cal-badge { position: absolute; top: -10px; right: -8px; background: var(--notify); color: white; font-size: 0.75rem; font-weight: bold; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
 
         .kanban-grid { display: grid; grid-template-columns: 1fr; gap: 24px; }
         @media(min-width: 768px) { .kanban-grid { grid-template-columns: 1fr 1fr; } }
@@ -55,17 +55,14 @@
         .badge { font-size: 0.8rem; background: var(--surface); border: 1px solid var(--border); padding: 4px 8px; border-radius: 12px; color: var(--text-muted); font-weight: bold;}
         .date-badge-hover:hover { text-decoration: underline dashed; color: var(--text-main); }
         
-        .badge-pool { background: #e0f2fe; color: #0369a1; border-color: #bae6fd; }
-        [data-theme="dark"] .badge-pool { background: #0c4a6e; color: #bae6fd; border-color: #0284c7; }
-        
-        .badge-past { background: #fffbeb; color: #d97706; border-color: #fcd34d; }
-        [data-theme="dark"] .badge-past { background: #451a03; color: #fde68a; border-color: #b45309; }
-        
         .strategy-box { background: #e0f2fe; border-left: 4px solid #0369a1; padding: 16px; border-radius: 8px; margin-top: 16px; color: #0c4a6e; }
         [data-theme="dark"] .strategy-box { background: #082f49; color: #bae6fd; }
+        [data-theme="hc"] .strategy-box { background: #000; border: 2px solid #fff; color: #fff; }
         
         .lib-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; background: var(--bg-color); }
         .hidden { display: none !important; }
+        
+        .coach-nudge { font-size: 0.85rem; color: var(--accent); margin-top: 8px; padding: 10px; background: var(--bg-color); border-radius: 6px; font-style: italic; border-left: 2px solid var(--accent); }
         
         #toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--success); color: white; padding: 12px 24px; border-radius: 30px; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.2); opacity: 0; pointer-events: none; transition: 0.3s; z-index: 9999; }
         #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
@@ -74,13 +71,13 @@
 <body>
 <div class="container">
     <div class="header-bar">
-        <!-- V6.0 TAG SO WE KNOW THE CACHE CLEARED! -->
-        <h1>🎓 Assessment Planner 6.0</h1>
+        <h1>🎓 Assessment Planner 6.1</h1>
         <div style="display: flex; gap: 8px; flex-wrap: wrap;">
             <button onclick="App.changeTextSize(-1)" title="Make text smaller">A-</button>
             <button onclick="App.changeTextSize(1)" title="Make text larger">A+</button>
             <button onclick="App.cycleTheme()" title="Change colours">🌓 Theme</button>
             <button onclick="App.toggleLibrary()" title="Switch between assignments">📚 My Plans</button>
+            <button onclick="App.copyAsText()" title="Copy plan as a text list">📋 Copy Text</button>
             <button onclick="App.exportICS()" title="Download as a calendar file">📅 Export</button>
             <button onclick="App.newPlan()" class="primary" title="Load a new plan from the AI">➕ Load Plan</button>
         </div>
@@ -98,11 +95,10 @@
 
     <div class="bento-box" id="ingest-box">
         <h3 style="margin-top:0;">Update or Load Plan</h3>
+        <p style="font-size: 0.85rem; color: var(--warning); margin-top: -10px;">⚠️ <strong>Working in Full Screen?</strong> Click the black 'Open Planner in Full Screen' button <em>before</em> pasting your code here!</p>
         <p>Paste the code from your AI Coach below.</p>
         <textarea id="json-input" placeholder="Paste your generated ```json code block here..."></textarea>
         <button class="primary" onclick="App.loadPlan()" style="font-size: 1.1rem; padding: 12px 24px;">Load / Update Plan</button>
-        
-        <!-- STATUS MESSAGE BOX -->
         <div id="status-msg" style="display: none; margin-top: 16px; font-weight: bold; padding: 16px; border-radius: 8px;"></div>
     </div>
 
@@ -156,8 +152,17 @@
 </div>
 
 <script>
+window.onerror = function(msg) { 
+    var sm = document.getElementById('status-msg');
+    if(sm) { sm.style.display = 'block'; sm.innerHTML = "❌ <strong>System Crash:</strong> Something went wrong. Make sure you pasted the code correctly!"; }
+    console.error(msg); return false; 
+};
+
 var U = {
     id: function(s) { return document.getElementById(s) },
+    html: function(id, content) { var e = this.id(id); if(e) e.innerHTML = content; },
+    text: function(id, content) { var e = this.id(id); if(e) e.textContent = content; },
+    display: function(id, show) { var e = this.id(id); if(e) e.style.display = show ? 'block' : 'none'; },
     escape: function(s) { return String(s || '').replace(/[&<>"']/g, function(c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c] }) },
     uuid: function() { return 't_' + Math.random().toString(36).substr(2, 9) },
     getTodayStr: function() { var d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); },
@@ -169,17 +174,9 @@ var U = {
         var days = [];
         var today = new Date(); today.setHours(0,0,0,0);
         var end = new Date(today); end.setDate(today.getDate() + 14); 
-        
         if (dueDateStr) {
-            try {
-                var p = dueDateStr.split('-');
-                if(p.length === 3) {
-                    var dDate = new Date(+p[0], +p[1]-1, +p[2]);
-                    if(dDate > today) { end = new Date(dDate); end.setDate(end.getDate() + 4); } 
-                }
-            } catch(e) {}
+            try { var p = dueDateStr.split('-'); if(p.length === 3) { var dDate = new Date(+p[0], +p[1]-1, +p[2]); if(dDate > today) { end = new Date(dDate); end.setDate(end.getDate() + 4); } } } catch(e) {}
         }
-        
         var diffTime = Math.abs(end - today);
         var diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         if(diffDays > 120) diffDays = 120; 
@@ -229,7 +226,7 @@ var App = {
     init: function() {
         var savedTheme = localStorage.getItem('plannerThemeIdx'); if(savedTheme) { this.currentThemeIdx = parseInt(savedTheme); this.applyTheme(); }
         var savedZoom = localStorage.getItem('plannerZoom'); if(savedZoom) { this.zoomLevel = parseInt(savedZoom); this.applyTextSize(); }
-        var saved = localStorage.getItem('plannerData6.0'); 
+        var saved = localStorage.getItem('plannerData6.1'); 
         if (saved) { try { this.data = JSON.parse(saved); this.render(); } catch(e) { this.renderCalendar(); } } else { this.renderCalendar(); }
     },
     
@@ -243,7 +240,7 @@ var App = {
         var i = U.id('ingest-box'); if(i) i.classList.remove('hidden'); 
         var j = U.id('json-input'); if(j) j.value = ''; 
         var l = U.id('library-panel'); if(l) l.classList.add('hidden');
-        var sm = U.id('status-msg'); if(sm) sm.style.display = 'none';
+        U.display('status-msg', false);
     },
     
     toggleDone: function() { 
@@ -255,8 +252,7 @@ var App = {
     unlockNext: function() { this.manualReveals++; this.render(); },
     
     selectDate: function(dateStr) { 
-        this.selectedDate = dateStr; 
-        this.render(); 
+        this.selectedDate = dateStr; this.render(); 
         setTimeout(() => { var el = U.id('cal-day-' + dateStr); if(el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' }); }, 50);
     },
     
@@ -314,32 +310,14 @@ var App = {
     loadPlan: function() {
         var sm = U.id('status-msg');
         var input = U.id('json-input') ? U.id('json-input').value : "";
+        if (!input.trim()) { if(sm) { sm.style.display = 'block'; sm.style.background = '#fee2e2'; sm.style.color = '#991b1b'; sm.innerHTML = "❌ Please paste the code in the box first."; } return; }
         
-        if (!input.trim()) { 
-            if(sm) { sm.style.display = 'block'; sm.style.background = '#fee2e2'; sm.style.color = '#991b1b'; sm.innerHTML = "❌ Please paste the code in the box first."; }
-            return; 
-        }
+        if(sm) { sm.style.display = 'block'; sm.style.background = '#e0f2fe'; sm.style.color = '#0369a1'; sm.innerHTML = "⏳ Processing your plan... Please wait."; }
         
-        // Show "Processing" indicator instantly so user knows the button click actually worked!
-        if(sm) {
-            sm.style.display = 'block';
-            sm.style.background = '#e0f2fe';
-            sm.style.color = '#0369a1';
-            sm.innerHTML = "⏳ Processing your plan... Please wait.";
-        }
-        
-        // Use timeout to let the UI update before parsing blocks the browser
         setTimeout(() => {
             try {
-                var raw = input;
-                
-                // Bulletproof String Sanitizer
-                raw = raw.replace(/[\u200B-\u200D\uFEFF]/g, ''); 
-                raw = raw.replace(/[\u2018\u2019]/g, "'").replace(/[\u201C\u201D]/g, '"');
-                
-                // Pure bracket extraction (Bypasses all markdown issues)
-                var first = raw.indexOf('{');
-                var last = raw.lastIndexOf('}');
+                var raw = input.replace(/[\u200B-\u200D\uFEFF]/g, '').replace(/[\u2018\u2019]/g, "'").replace(/[\u201C\u201D]/g, '"');
+                var first = raw.indexOf('{'), last = raw.lastIndexOf('}');
                 if (first === -1 || last === -1) throw new Error("No JSON found. Make sure you copied the curly brackets { }.");
                 
                 var clean = raw.substring(first, last + 1);
@@ -353,16 +331,10 @@ var App = {
 
                 parsed.stages.forEach(s => { 
                     s.title = s.title || s.name || s.stageTitle || "Unnamed Stage"; 
-                    if(Array.isArray(s.tasks)) { 
-                        s.tasks.forEach(t => { 
-                            t.name = t.name || t.taskTitle || t.title || t.description || "Unnamed Task"; 
-                            t.due = t.due || t.firstDraftDueDate || t.dueDate || t.date || null; 
-                        }); 
-                    } 
+                    if(Array.isArray(s.tasks)) { s.tasks.forEach(t => { t.name = t.name || t.taskTitle || t.title || t.description || "Unnamed Task"; t.due = t.due || t.firstDraftDueDate || t.dueDate || t.date || null; }); } 
                 });
                 parsed.stages.sort((a,b) => (parseInt(String(a.title).replace(/\D/g, ''))||0) - (parseInt(String(b.title).replace(/\D/g, ''))||0));
                 
-                // SMART MERGE
                 if (this.data && Array.isArray(this.data.stages)) {
                     parsed.stages.forEach(newStage => {
                         if(Array.isArray(newStage.tasks)) newStage.tasks.forEach(newTask => {
@@ -380,37 +352,26 @@ var App = {
                 
                 this.data = parsed; this.manualReveals = 0; 
                 
-                // SMART JUMP
-                var earliestDate = null;
-                var todayStr = U.getTodayStr();
+                var earliestDate = null; var todayStr = U.getTodayStr();
                 this.data.stages.forEach(s => {
-                    if (Array.isArray(s.tasks)) s.tasks.forEach(t => {
-                        if (t.due && t.due >= todayStr && (!earliestDate || t.due < earliestDate)) { earliestDate = t.due; }
-                    });
+                    if (Array.isArray(s.tasks)) s.tasks.forEach(t => { if (t.due && t.due >= todayStr && (!earliestDate || t.due < earliestDate)) { earliestDate = t.due; } });
                 });
                 this.selectedDate = earliestDate ? earliestDate : todayStr;
                 
-                localStorage.setItem('plannerData6.0', JSON.stringify(this.data)); 
+                localStorage.setItem('plannerData6.1', JSON.stringify(this.data)); 
                 var ib = U.id('ingest-box'); if(ib) ib.classList.add('hidden'); 
                 if(sm) sm.style.display = 'none';
                 
-                this.saveCurrentToLibrary(true); 
-                this.render();
-                this.showToast("Plan Loaded successfully!");
+                this.saveCurrentToLibrary(true); this.render(); this.showToast("Plan Loaded successfully!");
                 
             } catch(err) { 
-                if(sm) {
-                    sm.style.background = '#fee2e2';
-                    sm.style.color = '#991b1b';
-                    sm.innerHTML = `❌ <strong>Error reading the plan:</strong> ${err.message}<br><small style="font-weight: normal; margin-top:8px; display:block;">Make sure you highlighted the entire code block. If you are on an iPad, ensure it didn't change standard quotes into curly "Smart Quotes".</small>`;
-                }
+                if(sm) { sm.style.background = '#fee2e2'; sm.style.color = '#991b1b'; sm.innerHTML = `❌ <strong>Error reading the plan:</strong> ${err.message}<br><small style="font-weight: normal; margin-top:8px; display:block;">Make sure you highlighted the entire code block.</small>`; }
             }
-        }, 50); // 50ms delay lets the "Processing..." banner appear
+        }, 50); 
     },
     
     changeStatusAndDate: function(id, newStatus, newDate) {
-        if(!this.data) return;
-        var actionMsg = "";
+        if(!this.data) return; var actionMsg = "";
         this.data.stages.forEach(s => { if(s.tasks) s.tasks.forEach(t => { 
             if(t.id === id) { 
                 if(newStatus !== 'KEEP') { t.status = newStatus; if(newStatus === 'done') actionMsg = "Task Completed! 🎉"; }
@@ -422,7 +383,7 @@ var App = {
         this.save();
     },
     
-    save: function() { localStorage.setItem('plannerData6.0', JSON.stringify(this.data)); this.render(); },
+    save: function() { localStorage.setItem('plannerData6.1', JSON.stringify(this.data)); this.render(); },
     
     renderCalendar: function() {
         var dueDate = this.data ? this.data.dueDate : null;
@@ -430,8 +391,7 @@ var App = {
         var html = ''; var selectedName = "Today";
         
         days.forEach(d => {
-            var isActive = d.dateStr === this.selectedDate; 
-            if(isActive) selectedName = d.name;
+            var isActive = d.dateStr === this.selectedDate; if(isActive) selectedName = d.name;
             var badgeHtml = d.count > 0 ? `<div class="cal-badge">${d.count}</div>` : '';
             html += `<div id="${d.id}" class="cal-day drop-zone ${isActive ? 'active' : ''}" onclick="App.selectDate('${d.dateStr}')" ondragenter="DnD.over(event)" ondragover="DnD.over(event)" ondragleave="DnD.leave(event)" ondrop="DnD.dropCalendar(event, '${d.dateStr}')" title="Click to view tasks, or drop a task to schedule it">
                         ${badgeHtml}
@@ -467,8 +427,7 @@ var App = {
                 var isPool = (isUnscheduled || isPast) && t.status !== 'done';
                 var isFocus = (!isPool && t.due === this.selectedDate && t.status !== 'done');
                 
-                var dateTxt = U.fmtNZ(t.due);
-                if (isPast) dateTxt += " (Past)"; 
+                var dateTxt = U.fmtNZ(t.due); if (isPast) dateTxt += " (Past)"; 
 
                 var badgeClass = isPast ? "badge badge-past" : (isPool ? "badge badge-pool" : "badge");
                 
@@ -497,7 +456,11 @@ var App = {
                 }
                 else if (t.status === 'done') { card += `<button onclick="App.changeStatusAndDate('${t.id}', 'pending', 'KEEP')">↩️ Undo</button></div></div>`; htmlDone += card; }
             });
-            if(poolHtmlForStage !== '') htmlPool += `<h4 style="margin-top:20px; color:var(--accent);">${stageHeaderTitle}</h4>${poolHtmlForStage}`;
+            if(poolHtmlForStage !== '') {
+                htmlPool += `<h4 style="margin-top:20px; color:var(--accent);">${stageHeaderTitle}</h4>${poolHtmlForStage}`;
+                // NEW: The Coach Nudge at the bottom of each stage!
+                htmlPool += `<div class="coach-nudge">🧠 <em>Finding this stage hard? Pop back to the Coach and ask for help breaking it down!</em></div>`;
+            }
         });
         
         var pct = totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100);
@@ -513,6 +476,23 @@ var App = {
             ef.style.display = focusCount > 0 ? 'none' : 'block';
         }
         var cd = U.id('col-done'); if(cd) cd.innerHTML = htmlDone || '<p style="color:var(--text-muted);">Nothing completed yet.</p>';
+    },
+    
+    copyAsText: function() {
+        if (!this.data) return;
+        var txt = this.data.assignment + "\nDue: " + (this.data.dueDate || "No Date") + "\n\n";
+        if (Array.isArray(this.data.stages)) {
+            this.data.stages.forEach((s, i) => {
+                txt += `Stage ${i+1}: ${s.title || s.name || "Unnamed Stage"}\n`;
+                if(Array.isArray(s.tasks)) s.tasks.forEach(t => {
+                    var statusMark = (t.status === 'done') ? "[x]" : "[ ]";
+                    var dateStr = t.due ? t.due : "Unscheduled";
+                    txt += `  ${statusMark} ${t.name} (Target: ${dateStr})\n`;
+                });
+                txt += "\n";
+            });
+        }
+        navigator.clipboard.writeText(txt).then(() => App.showToast("Copied to clipboard!"));
     },
     
     exportICS: function() {
