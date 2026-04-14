@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Assessment Planner 6.1</title>
+    <title>Assessment Planner 6.2</title>
     <style>
         :root { --bg-color: #f8fafc; --surface: #ffffff; --text-main: #0f172a; --text-muted: #64748b; --border: #e2e8f0; --accent: #3b82f6; --success: #10b981; --danger: #ef4444; --notify: #8b5cf6; --warning: #f59e0b; }
         [data-theme="dark"] { --bg-color: #0f172a; --surface: #1e293b; --text-main: #f8fafc; --text-muted: #94a3b8; --border: #334155; --accent: #60a5fa; --notify: #a78bfa; --warning: #fbbf24; }
@@ -71,7 +71,7 @@
 <body>
 <div class="container">
     <div class="header-bar">
-        <h1>🎓 Assessment Planner 6.1</h1>
+        <h1>🎓 Assessment Planner 6.2</h1>
         <div style="display: flex; gap: 8px; flex-wrap: wrap;">
             <button onclick="App.changeTextSize(-1)" title="Make text smaller">A-</button>
             <button onclick="App.changeTextSize(1)" title="Make text larger">A+</button>
@@ -173,10 +173,34 @@ var U = {
     getDaysMap: function(dueDateStr, tasksData) {
         var days = [];
         var today = new Date(); today.setHours(0,0,0,0);
-        var end = new Date(today); end.setDate(today.getDate() + 14); 
+        var end = new Date(today); end.setDate(today.getDate() + 14); // Default fallback
+        
         if (dueDateStr) {
-            try { var p = dueDateStr.split('-'); if(p.length === 3) { var dDate = new Date(+p[0], +p[1]-1, +p[2]); if(dDate > today) { end = new Date(dDate); end.setDate(end.getDate() + 4); } } } catch(e) {}
+            try { 
+                var p = dueDateStr.split('-'); 
+                if(p.length === 3) { 
+                    var dDate = new Date(+p[0], +p[1]-1, +p[2]); 
+                    if(dDate >= today) { 
+                        // STRICT BOUNDARY: The timeline stops EXACTLY on the due date. No buffer.
+                        end = new Date(dDate); 
+                    } 
+                } 
+            } catch(e) {}
         }
+        
+        // Edge case: If a student manually dragged a task past the due date, extend the calendar to show it!
+        if (tasksData && Array.isArray(tasksData.stages)) {
+             tasksData.stages.forEach(s => {
+                 if (Array.isArray(s.tasks)) s.tasks.forEach(t => {
+                     if (t.due) {
+                         var tp = t.due.split('-');
+                         var tDate = new Date(+tp[0], +tp[1]-1, +tp[2]);
+                         if (tDate > end) end = tDate;
+                     }
+                 });
+             });
+        }
+        
         var diffTime = Math.abs(end - today);
         var diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         if(diffDays > 120) diffDays = 120; 
@@ -226,7 +250,7 @@ var App = {
     init: function() {
         var savedTheme = localStorage.getItem('plannerThemeIdx'); if(savedTheme) { this.currentThemeIdx = parseInt(savedTheme); this.applyTheme(); }
         var savedZoom = localStorage.getItem('plannerZoom'); if(savedZoom) { this.zoomLevel = parseInt(savedZoom); this.applyTextSize(); }
-        var saved = localStorage.getItem('plannerData6.1'); 
+        var saved = localStorage.getItem('plannerData6.2'); 
         if (saved) { try { this.data = JSON.parse(saved); this.render(); } catch(e) { this.renderCalendar(); } } else { this.renderCalendar(); }
     },
     
@@ -310,14 +334,21 @@ var App = {
     loadPlan: function() {
         var sm = U.id('status-msg');
         var input = U.id('json-input') ? U.id('json-input').value : "";
-        if (!input.trim()) { if(sm) { sm.style.display = 'block'; sm.style.background = '#fee2e2'; sm.style.color = '#991b1b'; sm.innerHTML = "❌ Please paste the code in the box first."; } return; }
+        
+        if (!input.trim()) { 
+            if(sm) { sm.style.display = 'block'; sm.style.background = '#fee2e2'; sm.style.color = '#991b1b'; sm.innerHTML = "❌ Please paste the code in the box first."; }
+            return; 
+        }
         
         if(sm) { sm.style.display = 'block'; sm.style.background = '#e0f2fe'; sm.style.color = '#0369a1'; sm.innerHTML = "⏳ Processing your plan... Please wait."; }
         
         setTimeout(() => {
             try {
-                var raw = input.replace(/[\u200B-\u200D\uFEFF]/g, '').replace(/[\u2018\u2019]/g, "'").replace(/[\u201C\u201D]/g, '"');
-                var first = raw.indexOf('{'), last = raw.lastIndexOf('}');
+                var raw = input;
+                raw = raw.replace(/[\u200B-\u200D\uFEFF]/g, ''); 
+                raw = raw.replace(/[\u2018\u2019]/g, "'").replace(/[\u201C\u201D]/g, '"');
+                var first = raw.indexOf('{');
+                var last = raw.lastIndexOf('}');
                 if (first === -1 || last === -1) throw new Error("No JSON found. Make sure you copied the curly brackets { }.");
                 
                 var clean = raw.substring(first, last + 1);
@@ -331,7 +362,12 @@ var App = {
 
                 parsed.stages.forEach(s => { 
                     s.title = s.title || s.name || s.stageTitle || "Unnamed Stage"; 
-                    if(Array.isArray(s.tasks)) { s.tasks.forEach(t => { t.name = t.name || t.taskTitle || t.title || t.description || "Unnamed Task"; t.due = t.due || t.firstDraftDueDate || t.dueDate || t.date || null; }); } 
+                    if(Array.isArray(s.tasks)) { 
+                        s.tasks.forEach(t => { 
+                            t.name = t.name || t.taskTitle || t.title || t.description || "Unnamed Task"; 
+                            t.due = t.due || t.firstDraftDueDate || t.dueDate || t.date || null; 
+                        }); 
+                    } 
                 });
                 parsed.stages.sort((a,b) => (parseInt(String(a.title).replace(/\D/g, ''))||0) - (parseInt(String(b.title).replace(/\D/g, ''))||0));
                 
@@ -352,26 +388,36 @@ var App = {
                 
                 this.data = parsed; this.manualReveals = 0; 
                 
-                var earliestDate = null; var todayStr = U.getTodayStr();
+                var earliestDate = null;
+                var todayStr = U.getTodayStr();
                 this.data.stages.forEach(s => {
-                    if (Array.isArray(s.tasks)) s.tasks.forEach(t => { if (t.due && t.due >= todayStr && (!earliestDate || t.due < earliestDate)) { earliestDate = t.due; } });
+                    if (Array.isArray(s.tasks)) s.tasks.forEach(t => {
+                        if (t.due && t.due >= todayStr && (!earliestDate || t.due < earliestDate)) { earliestDate = t.due; }
+                    });
                 });
                 this.selectedDate = earliestDate ? earliestDate : todayStr;
                 
-                localStorage.setItem('plannerData6.1', JSON.stringify(this.data)); 
+                localStorage.setItem('plannerData6.2', JSON.stringify(this.data)); 
                 var ib = U.id('ingest-box'); if(ib) ib.classList.add('hidden'); 
                 if(sm) sm.style.display = 'none';
                 
-                this.saveCurrentToLibrary(true); this.render(); this.showToast("Plan Loaded successfully!");
+                this.saveCurrentToLibrary(true); 
+                this.render();
+                this.showToast("Plan Loaded successfully!");
                 
             } catch(err) { 
-                if(sm) { sm.style.background = '#fee2e2'; sm.style.color = '#991b1b'; sm.innerHTML = `❌ <strong>Error reading the plan:</strong> ${err.message}<br><small style="font-weight: normal; margin-top:8px; display:block;">Make sure you highlighted the entire code block.</small>`; }
+                if(sm) {
+                    sm.style.background = '#fee2e2';
+                    sm.style.color = '#991b1b';
+                    sm.innerHTML = `❌ <strong>Error reading the plan:</strong> ${err.message}<br><small style="font-weight: normal; margin-top:8px; display:block;">Make sure you highlighted the entire code block. If you are on an iPad, ensure it didn't change standard quotes into curly "Smart Quotes".</small>`;
+                }
             }
         }, 50); 
     },
     
     changeStatusAndDate: function(id, newStatus, newDate) {
-        if(!this.data) return; var actionMsg = "";
+        if(!this.data) return;
+        var actionMsg = "";
         this.data.stages.forEach(s => { if(s.tasks) s.tasks.forEach(t => { 
             if(t.id === id) { 
                 if(newStatus !== 'KEEP') { t.status = newStatus; if(newStatus === 'done') actionMsg = "Task Completed! 🎉"; }
@@ -383,7 +429,7 @@ var App = {
         this.save();
     },
     
-    save: function() { localStorage.setItem('plannerData6.1', JSON.stringify(this.data)); this.render(); },
+    save: function() { localStorage.setItem('plannerData6.2', JSON.stringify(this.data)); this.render(); },
     
     renderCalendar: function() {
         var dueDate = this.data ? this.data.dueDate : null;
@@ -391,7 +437,8 @@ var App = {
         var html = ''; var selectedName = "Today";
         
         days.forEach(d => {
-            var isActive = d.dateStr === this.selectedDate; if(isActive) selectedName = d.name;
+            var isActive = d.dateStr === this.selectedDate; 
+            if(isActive) selectedName = d.name;
             var badgeHtml = d.count > 0 ? `<div class="cal-badge">${d.count}</div>` : '';
             html += `<div id="${d.id}" class="cal-day drop-zone ${isActive ? 'active' : ''}" onclick="App.selectDate('${d.dateStr}')" ondragenter="DnD.over(event)" ondragover="DnD.over(event)" ondragleave="DnD.leave(event)" ondrop="DnD.dropCalendar(event, '${d.dateStr}')" title="Click to view tasks, or drop a task to schedule it">
                         ${badgeHtml}
@@ -414,6 +461,9 @@ var App = {
 
         var htmlPool = '', htmlFocus = '', htmlDone = ''; var focusCount = 0, poolCount = 0, totalTasks = 0, completedTasks = 0;
         var todayStr = U.getTodayStr();
+        
+        // BOUNDARY ENFORCEMENT for Date Picker
+        var maxDateAttr = this.data.dueDate ? `max="${this.data.dueDate}"` : '';
 
         if(Array.isArray(this.data.stages)) this.data.stages.forEach((stage, sIdx) => {
             var stageHeaderTitle = `Stage ${sIdx + 1}: ${U.escape(stage.title || stage.name)}`; 
@@ -427,13 +477,14 @@ var App = {
                 var isPool = (isUnscheduled || isPast) && t.status !== 'done';
                 var isFocus = (!isPool && t.due === this.selectedDate && t.status !== 'done');
                 
-                var dateTxt = U.fmtNZ(t.due); if (isPast) dateTxt += " (Past)"; 
+                var dateTxt = U.fmtNZ(t.due);
+                if (isPast) dateTxt += " (Past)"; 
 
                 var badgeClass = isPast ? "badge badge-past" : (isPool ? "badge badge-pool" : "badge");
                 
                 var dateInputHtml = `<div style="position: relative; display: inline-block;">
-                    <span class="${badgeClass} date-badge-hover" title="Click to pick a specific date from a calendar!" style="cursor:pointer;">📅 ${dateTxt} ▾</span>
-                    <input type="date" value="${t.due || ''}" onchange="App.changeStatusAndDate('${t.id}', 'KEEP', this.value)" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;">
+                    <span class="${badgeClass} date-badge-hover" title="Click to pick a specific date!" style="cursor:pointer;">📅 ${dateTxt} ▾</span>
+                    <input type="date" value="${t.due || ''}" ${maxDateAttr} onchange="App.changeStatusAndDate('${t.id}', 'KEEP', this.value)" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;">
                 </div>`;
 
                 var card = `<div class="task-card ${isFocus ? 'in-focus' : (t.status==='done'?'is-done':'in-pool')}" draggable="true" ondragstart="DnD.start(event, '${t.id}')" ondragend="DnD.end(event)">
@@ -458,7 +509,6 @@ var App = {
             });
             if(poolHtmlForStage !== '') {
                 htmlPool += `<h4 style="margin-top:20px; color:var(--accent);">${stageHeaderTitle}</h4>${poolHtmlForStage}`;
-                // NEW: The Coach Nudge at the bottom of each stage!
                 htmlPool += `<div class="coach-nudge">🧠 <em>Finding this stage hard? Pop back to the Coach and ask for help breaking it down!</em></div>`;
             }
         });
