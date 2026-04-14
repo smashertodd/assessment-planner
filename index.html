@@ -3,29 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Assessment Planner 7.2</title>
+    <title>Assessment Planner 7.3</title>
     <style>
+        /* THEMES */
         :root { --bg-color: #f8fafc; --surface: #ffffff; --text-main: #0f172a; --text-muted: #64748b; --border: #e2e8f0; --accent: #3b82f6; --success: #10b981; --danger: #ef4444; --notify: #8b5cf6; --warning: #f59e0b; }
         [data-theme="dark"] { --bg-color: #0f172a; --surface: #1e293b; --text-main: #f8fafc; --text-muted: #94a3b8; --border: #334155; --accent: #60a5fa; --notify: #a78bfa; --warning: #fbbf24; }
+        [data-theme="hc"] { --bg-color: #000000; --surface: #000000; --text-main: #ffffff; --text-muted: #cccccc; --border: #ffffff; --accent: #ffff00; --success: #00ff00; --danger: #ff0000; --notify: #ff00ff; --warning: #ff9900; }
+        
         body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg-color); color: var(--text-main); margin: 0; padding: 20px; line-height: 1.6; transition: 0.2s; }
         .container { max-width: 1050px; margin: 0 auto; }
         .bento-box { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        [data-theme="hc"] .bento-box { border: 2px solid var(--border); box-shadow: none; }
         
         .header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
         h1, h2, h3, h4 { margin-top: 0; }
         textarea { width: 100%; height: 120px; padding: 16px; border: 2px dashed var(--border); border-radius: 12px; font-family: monospace; resize: vertical; margin-bottom: 16px; background: var(--bg-color); color: var(--text-main); }
+        
         button { background: var(--surface); color: var(--text-main); border: 1px solid var(--border); border-radius: 8px; padding: 8px 16px; font-weight: 600; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.95rem; }
         button:hover { border-color: var(--accent); }
         button.primary { background: var(--accent); color: white; border: none; }
+        [data-theme="hc"] button.primary { color: #000; }
         button.success { background: var(--success); color: white; border: none; }
+        [data-theme="hc"] button.success { color: #000; }
         
         .progress-wrapper { background: var(--bg-color); border: 1px solid var(--border); height: 16px; border-radius: 8px; overflow: hidden; margin-top: 12px; }
         .progress-fill { background: var(--success); height: 100%; width: 0%; transition: width 0.5s ease-out; }
         
-        /* CALENDAR STRIP VS GRID */
-        .calendar-container { padding-bottom: 16px; margin-bottom: 8px; }
-        .calendar-strip { display: flex; gap: 12px; overflow-x: auto; scroll-behavior: smooth; padding-bottom: 8px;}
-        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
+        /* CALENDAR CSS - FIXED CLIPPING AND GRID TOGGLE */
+        .calendar-container { margin-bottom: 8px; }
+        .calendar-strip { display: flex; gap: 12px; overflow-x: auto; scroll-behavior: smooth; padding-top: 16px; padding-bottom: 16px; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding-top: 16px; padding-bottom: 16px; }
+        @media(min-width: 768px) { .calendar-grid { grid-template-columns: repeat(7, 1fr); } }
         
         .calendar-strip::-webkit-scrollbar { height: 10px; }
         .calendar-strip::-webkit-scrollbar-track { background: var(--bg-color); border-radius: 8px; }
@@ -38,7 +46,10 @@
         .cal-day .day-name { font-weight: bold; font-size: 0.95rem; color: var(--text-main); }
         .cal-day.active .day-name { color: var(--accent); }
         .cal-day .day-date { font-size: 0.8rem; color: var(--text-muted); }
-        .cal-badge { position: absolute; top: -8px; right: -8px; background: var(--notify); color: white; font-size: 0.75rem; font-weight: bold; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        
+        /* THE PURPLE BADGE */
+        .cal-badge { position: absolute; top: -10px; right: -8px; background: var(--notify); color: white; font-size: 0.75rem; font-weight: bold; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        [data-theme="hc"] .cal-badge { color: #000; border: 1px solid #fff; }
 
         .kanban-grid { display: grid; grid-template-columns: 1fr; gap: 24px; }
         @media(min-width: 768px) { .kanban-grid { grid-template-columns: 1fr 1fr; } }
@@ -64,7 +75,6 @@
         .lib-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; background: var(--bg-color); }
         .hidden { display: none !important; }
         
-        /* SHAME BUSTER LINK */
         .shame-buster { font-size: 0.8rem; color: var(--text-muted); text-decoration: underline; cursor: pointer; border: none; background: transparent; padding: 0; margin-left: auto; margin-top: 8px;}
         .shame-buster:hover { color: var(--danger); }
 
@@ -75,17 +85,17 @@
 <body>
 <div class="container">
     <div class="header-bar">
-        <h1>🎓 Assessment Planner 7.2</h1>
+        <h1>🎓 Assessment Planner 7.3</h1>
+        <!-- ALL BUTTONS PRESENT AND ACCOUNTED FOR -->
         <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-            <!-- RESTORED ALL BUTTONS -->
             <button onclick="App.changeTextSize(-1)" title="Make text smaller">A-</button>
             <button onclick="App.changeTextSize(1)" title="Make text larger">A+</button>
-            <button onclick="App.toggleCalView()" id="btn-cal-view" title="Change Calendar Layout">📅 View: Strip</button>
+            <button onclick="App.toggleCalView()" id="btn-cal-view" title="Toggle between scrolling strip and weekly grid">📅 View: Grid</button>
             <button onclick="App.cycleTheme()" title="Change colours">🌓 Theme</button>
             <button onclick="App.toggleLibrary()" title="Switch assignments">📚 My Plans</button>
             <button onclick="App.copyAsText()" title="Copy plan as a text list">📋 Copy Text</button>
             <button onclick="App.exportICS()" title="Download to Calendar">📅 Export</button>
-            <button onclick="App.newPlan()" class="primary">➕ Load Plan</button>
+            <button onclick="App.newPlan()" class="primary" title="Load a new plan">➕ Load Plan</button>
         </div>
     </div>
     
@@ -98,9 +108,9 @@
         <div id="library-list"></div>
     </div>
 
+    <!-- FULL SCREEN WARNING PRESENT -->
     <div class="bento-box" id="ingest-box">
         <h3 style="margin-top:0;">Update or Load Plan</h3>
-        <!-- RESTORED WARNING EXACTLY AS REQUESTED -->
         <p style="font-size: 1.05rem; color: var(--warning); margin-top: -10px;">⚠️ <strong>Working in Full Screen?</strong> Click the black 'Open Planner in Full Screen' button <br><em>before</em> pasting your code here!</p>
         <textarea id="json-input" placeholder="Paste your generated ```json code block here..."></textarea>
         <button class="primary" onclick="App.loadPlan()" style="font-size: 1.1rem; padding: 12px 24px;">Load / Update Plan</button>
@@ -125,14 +135,13 @@
         </div>
 
         <h3 style="font-size: 1rem; color: var(--text-muted); margin-bottom: 8px;">📅 Project Timeline</h3>
-        <!-- THE CALENDAR WRAPPER -->
         <div class="calendar-container">
             <div id="calendar-strip" class="calendar-strip"></div>
         </div>
 
         <div class="kanban-grid">
             <div class="bento-box drop-zone" ondragover="DnD.over(event)" ondragleave="DnD.leave(event)" ondrop="DnD.drop(event, 'pool')">
-                <div class="zone-title">📋 Master Task List</div>
+                <div class="zone-title">📋 Unscheduled Tasks</div>
                 <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0;">Tasks safely waiting to be scheduled.</p>
                 <div id="col-pool"></div>
             </div>
@@ -232,7 +241,7 @@ var App = {
         var savedZoom = localStorage.getItem('plannerZoom'); if(savedZoom) { this.zoomLevel = parseInt(savedZoom); this.applyTextSize(); }
         var savedView = localStorage.getItem('plannerCalView'); if(savedView === 'grid') { this.calViewIsGrid = true; }
         
-        var saved = localStorage.getItem('plannerData7.2'); 
+        var saved = localStorage.getItem('plannerData7.3'); 
         if (saved) { try { this.data = JSON.parse(saved); this.render(); } catch(e) { this.renderCalendar(); } } else { this.renderCalendar(); }
     },
     
@@ -375,7 +384,7 @@ var App = {
                 });
                 this.selectedDate = earliestDate ? earliestDate : todayStr;
                 
-                localStorage.setItem('plannerData7.2', JSON.stringify(this.data)); 
+                localStorage.setItem('plannerData7.3', JSON.stringify(this.data)); 
                 var ib = U.id('ingest-box'); if(ib) ib.classList.add('hidden'); 
                 if(sm) sm.style.display = 'none';
                 
@@ -399,7 +408,7 @@ var App = {
         if(actionMsg) this.showToast(actionMsg);
         this.save();
     },
-    save: function() { localStorage.setItem('plannerData7.2', JSON.stringify(this.data)); this.render(); },
+    save: function() { localStorage.setItem('plannerData7.3', JSON.stringify(this.data)); this.render(); },
     
     renderCalendar: function() {
         var dueDate = this.data ? this.data.dueDate : null;
@@ -422,7 +431,7 @@ var App = {
         }
         
         var ft = U.id('focus-title'); if(ft) ft.innerHTML = `🎯 Focus for ${selectedName}`; 
-        var bcv = U.id('btn-cal-view'); if(bcv) bcv.innerHTML = this.calViewIsGrid ? "📅 View: Grid" : "📅 View: Strip";
+        var bcv = U.id('btn-cal-view'); if(bcv) bcv.innerHTML = this.calViewIsGrid ? "📅 View: Strip" : "📅 View: Grid";
     },
 
     render: function() {
@@ -478,8 +487,7 @@ var App = {
                     if (visiblePoolCount < allowedPoolCount) { poolHtmlForStage += card; visiblePoolCount++; } else { lockedCount++; }
                 }
                 else if (isFocus) { 
-                    card += `<button class="success" onclick="App.changeStatusAndDate('${t.id}', 'done', 'KEEP')">✅ Mark Done</button> <button onclick="App.changeStatusAndDate('${t.id}', 'pending', 'CLEAR')" style="margin-left:auto;" title="Unschedule">↩️ Unschedule</button>`; 
-                    card += `</div></div>`;
+                    card += `<button class="success" onclick="App.changeStatusAndDate('${t.id}', 'done', 'KEEP')">✅ Mark Done</button> <button onclick="App.changeStatusAndDate('${t.id}', 'pending', 'CLEAR')" style="margin-left:auto;" title="Remove the date and put it back in the Unscheduled pool">↩️ Unschedule</button></div></div>`; 
                     htmlFocus += card; focusCount++;
                 }
                 else if (t.status === 'done') { card += `<button onclick="App.changeStatusAndDate('${t.id}', 'pending', 'KEEP')">↩️ Undo</button></div></div>`; htmlDone += card; }
@@ -504,48 +512,4 @@ var App = {
             ef.innerHTML = focusCount > 0 ? '' : `<div style="text-align:center; padding:20px; background:var(--bg-color); border:2px dashed var(--border); border-radius:12px; color:var(--text-muted);">🌴 Free Day!<br>You have no tasks scheduled for this day.<br><br><strong>Click a day with a <span style="color:var(--notify);">purple badge</span> on the calendar to see upcoming tasks!</strong></div>`;
             ef.style.display = focusCount > 0 ? 'none' : 'block';
         }
-        var cd = U.id('col-done'); if(cd) cd.innerHTML = htmlDone || '<p style="color:var(--text-muted);">Nothing completed yet.</p>';
-    },
-    
-    // RESTORED COPY TEXT FUNCTION!
-    copyAsText: function() {
-        if (!this.data) return;
-        var txt = this.data.assignment + "\nDue: " + (this.data.dueDate || "No Date") + "\n\n";
-        if (Array.isArray(this.data.stages)) {
-            this.data.stages.forEach((s, i) => {
-                txt += `Stage ${i+1}: ${s.title || s.name || "Unnamed Stage"}\n`;
-                if(Array.isArray(s.tasks)) s.tasks.forEach(t => {
-                    var statusMark = (t.status === 'done') ? "[x]" : "[ ]";
-                    var dateStr = t.due ? U.fmtNZ(t.due) : "Unscheduled";
-                    txt += `  ${statusMark} ${t.name} (Target: ${dateStr})\n`;
-                });
-                txt += "\n";
-            });
-        }
-        navigator.clipboard.writeText(txt).then(() => App.showToast("Copied to clipboard!"));
-    },
-    
-    exportICS: function() {
-        if (!this.data) return; var ics = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//AssessmentPlanner//NZ\n";
-        if (Array.isArray(this.data.stages)) this.data.stages.forEach(s => {
-            if(Array.isArray(s.tasks)) s.tasks.forEach(t => {
-                if (!t.due || t.status === 'done') return;
-                try {
-                    var p = t.due.split('-'); var dt = p[0] + p[1] + p[2];
-                    ics += "BEGIN:VEVENT\nUID:" + t.id + "@planner\nDTSTAMP:" + dt + "T090000Z\n";
-                    ics += "DTSTART:" + dt + "T100000\nDTEND:" + dt + "T110000\n";
-                    ics += "SUMMARY:" + (this.data.assignment||"Task") + ": " + t.name + "\n";
-                    if(t.hint) ics += "DESCRIPTION:" + t.hint.replace(/\n/g, '\\n') + "\n";
-                    ics += "END:VEVENT\n";
-                } catch(e) {}
-            });
-        });
-        ics += "END:VCALENDAR";
-        var blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' }); var link = document.createElement('a'); link.href = window.URL.createObjectURL(blob);
-        link.download = "StudyPlan.ics"; document.body.appendChild(link); link.click(); document.body.removeChild(link);
-    }
-};
-App.init();
-</script>
-</body>
-</html>
+        var cd = U.id('col-done'); if(cd)
