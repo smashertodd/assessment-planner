@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Assessment Planner 7.0</title>
+    <title>Assessment Planner 7.2</title>
     <style>
         :root { --bg-color: #f8fafc; --surface: #ffffff; --text-main: #0f172a; --text-muted: #64748b; --border: #e2e8f0; --accent: #3b82f6; --success: #10b981; --danger: #ef4444; --notify: #8b5cf6; --warning: #f59e0b; }
         [data-theme="dark"] { --bg-color: #0f172a; --surface: #1e293b; --text-main: #f8fafc; --text-muted: #94a3b8; --border: #334155; --accent: #60a5fa; --notify: #a78bfa; --warning: #fbbf24; }
@@ -75,11 +75,15 @@
 <body>
 <div class="container">
     <div class="header-bar">
-        <h1>🎓 Assessment Planner 7.0</h1>
+        <h1>🎓 Assessment Planner 7.2</h1>
         <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <!-- RESTORED ALL BUTTONS -->
+            <button onclick="App.changeTextSize(-1)" title="Make text smaller">A-</button>
+            <button onclick="App.changeTextSize(1)" title="Make text larger">A+</button>
             <button onclick="App.toggleCalView()" id="btn-cal-view" title="Change Calendar Layout">📅 View: Strip</button>
             <button onclick="App.cycleTheme()" title="Change colours">🌓 Theme</button>
             <button onclick="App.toggleLibrary()" title="Switch assignments">📚 My Plans</button>
+            <button onclick="App.copyAsText()" title="Copy plan as a text list">📋 Copy Text</button>
             <button onclick="App.exportICS()" title="Download to Calendar">📅 Export</button>
             <button onclick="App.newPlan()" class="primary">➕ Load Plan</button>
         </div>
@@ -95,7 +99,9 @@
     </div>
 
     <div class="bento-box" id="ingest-box">
-        <h3 style="margin-top:0;">Load Plan</h3>
+        <h3 style="margin-top:0;">Update or Load Plan</h3>
+        <!-- RESTORED WARNING EXACTLY AS REQUESTED -->
+        <p style="font-size: 1.05rem; color: var(--warning); margin-top: -10px;">⚠️ <strong>Working in Full Screen?</strong> Click the black 'Open Planner in Full Screen' button <br><em>before</em> pasting your code here!</p>
         <textarea id="json-input" placeholder="Paste your generated ```json code block here..."></textarea>
         <button class="primary" onclick="App.loadPlan()" style="font-size: 1.1rem; padding: 12px 24px;">Load / Update Plan</button>
         <div id="status-msg" style="display: none; margin-top: 16px; font-weight: bold; padding: 16px; border-radius: 8px;"></div>
@@ -165,7 +171,6 @@ var U = {
         if(!dateStr) return "Unscheduled";
         try { var p = dateStr.split('-'); if(p.length !== 3) return dateStr; return p[2] + '.' + p[1] + '.' + p[0]; } catch(e) { return dateStr; }
     },
-    // STRICT BOUNDARY ENGINE
     getDaysMap: function(dueDateStr, tasksData) {
         var days = [];
         var today = new Date(); today.setHours(0,0,0,0);
@@ -219,17 +224,20 @@ var DnD = {
 };
 
 var App = {
-    data: null, showDone: false, manualReveals: 0, selectedDate: U.getTodayStr(), themes: ['light', 'dark'], currentThemeIdx: 0,
+    data: null, showDone: false, manualReveals: 0, selectedDate: U.getTodayStr(), zoomLevel: 0, themes: ['light', 'dark', 'hc'], currentThemeIdx: 0,
     calViewIsGrid: false,
     
     init: function() {
         var savedTheme = localStorage.getItem('plannerThemeIdx'); if(savedTheme) { this.currentThemeIdx = parseInt(savedTheme); this.applyTheme(); }
+        var savedZoom = localStorage.getItem('plannerZoom'); if(savedZoom) { this.zoomLevel = parseInt(savedZoom); this.applyTextSize(); }
         var savedView = localStorage.getItem('plannerCalView'); if(savedView === 'grid') { this.calViewIsGrid = true; }
         
-        var saved = localStorage.getItem('plannerData7.0'); 
+        var saved = localStorage.getItem('plannerData7.2'); 
         if (saved) { try { this.data = JSON.parse(saved); this.render(); } catch(e) { this.renderCalendar(); } } else { this.renderCalendar(); }
     },
     
+    changeTextSize: function(delta) { this.zoomLevel = Math.max(-2, Math.min(4, this.zoomLevel + delta)); this.applyTextSize(); localStorage.setItem('plannerZoom', this.zoomLevel); },
+    applyTextSize: function() { document.documentElement.style.fontSize = (16 + (this.zoomLevel * 2)) + 'px'; },
     cycleTheme: function() { this.currentThemeIdx = (this.currentThemeIdx + 1) % this.themes.length; this.applyTheme(); localStorage.setItem('plannerThemeIdx', this.currentThemeIdx); },
     applyTheme: function() { var t = this.themes[this.currentThemeIdx]; document.documentElement.setAttribute('data-theme', t === 'light' ? '' : t); },
     
@@ -367,7 +375,7 @@ var App = {
                 });
                 this.selectedDate = earliestDate ? earliestDate : todayStr;
                 
-                localStorage.setItem('plannerData7.0', JSON.stringify(this.data)); 
+                localStorage.setItem('plannerData7.2', JSON.stringify(this.data)); 
                 var ib = U.id('ingest-box'); if(ib) ib.classList.add('hidden'); 
                 if(sm) sm.style.display = 'none';
                 
@@ -391,7 +399,7 @@ var App = {
         if(actionMsg) this.showToast(actionMsg);
         this.save();
     },
-    save: function() { localStorage.setItem('plannerData7.0', JSON.stringify(this.data)); this.render(); },
+    save: function() { localStorage.setItem('plannerData7.2', JSON.stringify(this.data)); this.render(); },
     
     renderCalendar: function() {
         var dueDate = this.data ? this.data.dueDate : null;
@@ -429,7 +437,6 @@ var App = {
         var htmlPool = '', htmlFocus = '', htmlDone = ''; var focusCount = 0, poolCount = 0, totalTasks = 0, completedTasks = 0;
         var todayStr = U.getTodayStr();
         
-        // HARD BOUNDARY for Date Picker Max
         var maxDateAttr = this.data.dueDate ? `max="${this.data.dueDate}"` : '';
 
         var visiblePoolCount = 0;
@@ -479,6 +486,7 @@ var App = {
             });
             if(poolHtmlForStage !== '') {
                 htmlPool += `<h4 style="margin-top:20px; color:var(--accent);">${stageHeaderTitle}</h4>${poolHtmlForStage}`;
+                htmlPool += `<div class="coach-nudge" style="font-size: 0.85rem; color: var(--accent); margin-top: 8px; padding: 10px; background: var(--bg-color); border-radius: 6px; font-style: italic; border-left: 2px solid var(--accent);">🧠 <em>Finding this stage hard? Pop back to the Coach and ask for help breaking it down!</em></div>`;
             }
         });
         
@@ -499,6 +507,24 @@ var App = {
         var cd = U.id('col-done'); if(cd) cd.innerHTML = htmlDone || '<p style="color:var(--text-muted);">Nothing completed yet.</p>';
     },
     
+    // RESTORED COPY TEXT FUNCTION!
+    copyAsText: function() {
+        if (!this.data) return;
+        var txt = this.data.assignment + "\nDue: " + (this.data.dueDate || "No Date") + "\n\n";
+        if (Array.isArray(this.data.stages)) {
+            this.data.stages.forEach((s, i) => {
+                txt += `Stage ${i+1}: ${s.title || s.name || "Unnamed Stage"}\n`;
+                if(Array.isArray(s.tasks)) s.tasks.forEach(t => {
+                    var statusMark = (t.status === 'done') ? "[x]" : "[ ]";
+                    var dateStr = t.due ? U.fmtNZ(t.due) : "Unscheduled";
+                    txt += `  ${statusMark} ${t.name} (Target: ${dateStr})\n`;
+                });
+                txt += "\n";
+            });
+        }
+        navigator.clipboard.writeText(txt).then(() => App.showToast("Copied to clipboard!"));
+    },
+    
     exportICS: function() {
         if (!this.data) return; var ics = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//AssessmentPlanner//NZ\n";
         if (Array.isArray(this.data.stages)) this.data.stages.forEach(s => {
@@ -506,7 +532,6 @@ var App = {
                 if (!t.due || t.status === 'done') return;
                 try {
                     var p = t.due.split('-'); var dt = p[0] + p[1] + p[2];
-                    // REAL TIME BLOCKS (10 AM to 11 AM)
                     ics += "BEGIN:VEVENT\nUID:" + t.id + "@planner\nDTSTAMP:" + dt + "T090000Z\n";
                     ics += "DTSTART:" + dt + "T100000\nDTEND:" + dt + "T110000\n";
                     ics += "SUMMARY:" + (this.data.assignment||"Task") + ": " + t.name + "\n";
