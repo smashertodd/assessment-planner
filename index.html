@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Assessment Planner 8.1</title>
+    <title>Assessment Planner 8.2</title>
     <style>
         :root { --bg-color: #f8fafc; --surface: #ffffff; --text-main: #0f172a; --text-muted: #64748b; --border: #e2e8f0; --accent: #3b82f6; --success: #10b981; --danger: #ef4444; --notify: #8b5cf6; --warning: #f59e0b; }
         [data-theme="dark"] { --bg-color: #0f172a; --surface: #1e293b; --text-main: #f8fafc; --text-muted: #94a3b8; --border: #334155; --accent: #60a5fa; --notify: #a78bfa; --warning: #fbbf24; }
@@ -33,7 +33,6 @@
         .calendar-strip::-webkit-scrollbar-track { background: var(--bg-color); border-radius: 8px; }
         .calendar-strip::-webkit-scrollbar-thumb { background: var(--border); border-radius: 8px; }
         
-        /* CALENDAR DAYS (Margin-top protects the badge from clipping) */
         .cal-day { position: relative; flex: 0 0 auto; min-width: 90px; background: var(--bg-color); border: 2px solid transparent; border-bottom: 3px solid var(--border); border-radius: 12px; padding: 12px 4px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.2s; cursor: pointer; opacity: 0.7; margin-top: 12px; }
         .cal-day.active { border-color: var(--accent); background: var(--surface); opacity: 1; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .cal-day.drag-over { background: #f0fdf4; border-color: var(--success); transform: scale(1.05); opacity: 1; }
@@ -71,7 +70,6 @@
         .shame-buster { font-size: 0.8rem; color: var(--text-muted); text-decoration: underline; cursor: pointer; border: none; background: transparent; padding: 0; margin-left: auto; margin-top: 8px;}
         .shame-buster:hover { color: var(--danger); }
         
-        /* NEW: Relationship Banner CSS */
         .relationship-banner { background: #f5f3ff; border: 1px solid #e0e7ff; border-left: 4px solid #6366f1; padding: 16px; border-radius: 8px; margin-bottom: 24px; display: flex; align-items: center; gap: 16px; }
         [data-theme="dark"] .relationship-banner { background: #1e1b4b; border-color: #312e81; color: #e0e7ff; }
 
@@ -82,10 +80,10 @@
 <body>
 <div class="container">
     <div class="header-bar">
-        <h1>🎓 Assessment Planner 8.1</h1>
+        <h1>🎓 Assessment Planner 8.2</h1>
         <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-            <button onclick="App.changeTextSize(-1)" title="Make text smaller">A-</button>
-            <button onclick="App.changeTextSize(1)" title="Make text larger">A+</button>
+            <button onclick="App.changeTextSize(-1)" title="Make text smaller" style="font-size: 0.8rem;">text</button>
+<button onclick="App.changeTextSize(1)" title="Make text larger" style="font-size: 1.2rem;">text</button>
             <button onclick="App.toggleCalView()" id="btn-cal-view" title="Toggle between scrolling strip and weekly grid">📅 View: Grid</button>
             <button onclick="App.cycleTheme()" title="Change colours">🌓 Theme</button>
             <button onclick="App.toggleLibrary()" title="Switch assignments">📚 My Plans</button>
@@ -116,7 +114,7 @@
 
     <div id="app-content" class="hidden">
         
-        <!-- NEW: THE RELATIONSHIP BANNER -->
+        <!-- THE RELATIONSHIP BANNER -->
         <div class="relationship-banner">
             <span style="font-size: 2rem;">💬</span>
             <p style="margin: 0; font-size: 0.95rem;"><strong>Don't close the chat!</strong> Your AI Coach isn't just for planning. Keep asking it to explain tricky concepts, provide sentence starters, or break down hard tasks while you work!</p>
@@ -170,7 +168,6 @@
 </div>
 
 <script>
-// FORCEFUL ALARM SYSTEM
 window.onerror = function(msg) { 
     alert("🚨 SYSTEM ERROR: " + msg + "\n\nIf you were trying to load a plan, the JSON code from the AI might be broken.");
     return false; 
@@ -249,7 +246,7 @@ var App = {
         var savedZoom = localStorage.getItem('plannerZoom'); if(savedZoom) { this.zoomLevel = parseInt(savedZoom); this.applyTextSize(); }
         var savedView = localStorage.getItem('plannerCalView'); if(savedView === 'grid') { this.calViewIsGrid = true; }
         
-        var saved = localStorage.getItem('plannerData8.1'); 
+        var saved = localStorage.getItem('plannerData8.2'); 
         if (saved) { try { this.data = JSON.parse(saved); this.render(); } catch(e) { this.renderCalendar(); } } else { this.renderCalendar(); }
     },
     
@@ -265,7 +262,8 @@ var App = {
     },
     
     newPlan: function() { 
-        if(this.data && !confirm("This will hide your current plan. Have you saved it to your Library?")) return;
+        // FIX: Silently auto-save current progress to Library before clearing the screen! No pop-up!
+        if(this.data) { this.saveCurrentToLibrary(true); }
         var c = U.id('app-content'); if(c) c.classList.add('hidden'); 
         var i = U.id('ingest-box'); if(i) i.classList.remove('hidden'); 
         var j = U.id('json-input'); if(j) j.value = ''; 
@@ -394,7 +392,7 @@ var App = {
             });
             this.selectedDate = earliestDate ? earliestDate : todayStr;
             
-            localStorage.setItem('plannerData8.1', JSON.stringify(this.data)); 
+            localStorage.setItem('plannerData8.2', JSON.stringify(this.data)); 
             var ib = U.id('ingest-box'); if(ib) ib.classList.add('hidden'); 
             if(sm) sm.style.display = 'none';
             
@@ -418,7 +416,7 @@ var App = {
         if(actionMsg) this.showToast(actionMsg);
         this.save();
     },
-    save: function() { localStorage.setItem('plannerData8.1', JSON.stringify(this.data)); this.render(); },
+    save: function() { localStorage.setItem('plannerData8.2', JSON.stringify(this.data)); this.render(); },
     
     renderCalendar: function() {
         var dueDate = this.data ? this.data.dueDate : null;
@@ -497,14 +495,13 @@ var App = {
                     if (visiblePoolCount < allowedPoolCount) { poolHtmlForStage += card; visiblePoolCount++; } else { lockedCount++; }
                 }
                 else if (isFocus) { 
-                    card += `<button class="success" onclick="App.changeStatusAndDate('${t.id}', 'done', 'KEEP')">✅ Mark Done</button> <button onclick="App.changeStatusAndDate('${t.id}', 'pending', 'CLEAR')" style="margin-left:auto;" title="Unschedule">↩️ Unschedule</button></div></div>`; 
+                    card += `<button class="success" onclick="App.changeStatusAndDate('${t.id}', 'done', 'KEEP')">✅ Mark Done</button> <button onclick="App.changeStatusAndDate('${t.id}', 'pending', 'CLEAR')" style="margin-left:auto;" title="Remove the date and put it back in the Unscheduled pool">↩️ Unschedule</button></div></div>`; 
                     htmlFocus += card; focusCount++;
                 }
                 else if (t.status === 'done') { card += `<button onclick="App.changeStatusAndDate('${t.id}', 'pending', 'KEEP')">↩️ Undo</button></div></div>`; htmlDone += card; }
             });
             if(poolHtmlForStage !== '') {
                 htmlPool += `<h4 style="margin-top:20px; color:var(--accent);">${stageHeaderTitle}</h4>${poolHtmlForStage}`;
-                // THE COACH NUDGE
                 htmlPool += `<div class="coach-nudge" style="font-size: 0.85rem; color: var(--accent); margin-top: 8px; padding: 10px; background: var(--bg-color); border-radius: 6px; font-style: italic; border-left: 2px solid var(--accent);">🧠 <em>Finding this stage hard? Pop back to the Coach and ask for help breaking it down!</em></div>`;
             }
         });
